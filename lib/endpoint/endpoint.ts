@@ -7,9 +7,11 @@ export interface EndpointConfigure {
   selectAdaptor: (adaptors: Adaptor<any, any>[]) => Adaptor<any, any>;
 }
 
-export abstract class Endpoint {
-  abstract receive(input: any): any;
+export interface Endpoint {
+  receive(input: EndpointInput<any, any>): any;
 }
+
+export type FunctionalEndpoint = (input: any) => any;
 
 export abstract class NormalEndpoint<Meta> implements Endpoint {
   abstract receive(input: EndpointInput<Meta, any>): any;

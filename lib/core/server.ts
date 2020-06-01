@@ -1,5 +1,5 @@
 import {Adaptor, AdaptorConfigure} from "../adaptor/adaptor.ts";
-import {Endpoint, EndpointConfigure} from "../endpoint/endpoint.ts";
+import {Endpoint, EndpointConfigure, FunctionalEndpoint} from "../endpoint/endpoint.ts";
 import EndpointInput from "../endpoint/endpoint-input.ts";
 import {matchPath, parsePath} from "../util/match-path.ts";
 
@@ -56,6 +56,12 @@ export class EnlaceServer {
         result.push(endpoint);
       }
     }
+    // todo: 优化这里, 寻找最优 endpoint
+    result = result.sort((lhs: Endpoint, rhs: Endpoint): number => {
+      const lConfigure = this.endpoints.get(lhs);
+      const rConfigure = this.endpoints.get(rhs);
+      return (lConfigure?.expectedPath.length ?? 0) > (rConfigure?.expectedPath.length ?? 0) ? -1 : 1;
+    })
     return result;
   }
 
@@ -67,7 +73,13 @@ export class EnlaceServer {
     this.adaptors.set(adaptor, configure);
   }
 
-  public addEndpoint(endpoint: Endpoint, configure: EndpointConfigure) {
-    this.endpoints.set(endpoint, configure);
+  public addEndpoint(endpoint: Endpoint | FunctionalEndpoint, configure: EndpointConfigure) {
+    let finalEndpoint: Endpoint;
+    if (typeof endpoint === 'function') {
+      finalEndpoint = { receive: endpoint as FunctionalEndpoint };
+    } else {
+      finalEndpoint = endpoint as Endpoint;
+    }
+    this.endpoints.set(finalEndpoint, configure);
   }
 }

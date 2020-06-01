@@ -5,7 +5,7 @@ import Client from "../../endpoint/client.ts";
 import { PathParameter } from "../../util/match-path.ts";
 import { MultipartReader, isFormFile, FormFile } from "https://deno.land/std/mime/mod.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";
-import HttpMethod from "./http-method.ts";
+import HttpMethod from "./method.ts";
 import { Util } from "../../util/mod.ts";
 
 export type HttpInputMeta = ServerRequest;
@@ -14,7 +14,7 @@ export type HttpSearchParameter = { [key: string]: string };
 
 export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody> {
   protocol: string = "Http";
-  requester: Client;
+  client: Client;
   path: string;
   meta: HttpInputMeta;
   parameters: HttpSearchParameter = {};
@@ -24,7 +24,7 @@ export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody>
   constructor(path: string, meta: HttpInputMeta) {
     const id = v4.generate();
     const ip = meta.conn.remoteAddr;
-    this.requester = { ip, id };
+    this.client = { ip, id };
     this.meta = meta;
     this.path = path;
   }

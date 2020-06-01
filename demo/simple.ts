@@ -1,7 +1,7 @@
 import { EnlaceServer } from "../lib/core/server.ts";
-import { HttpAdaptor } from "../lib/adaptor/http-adaptor/http-adaptor.ts";
-import HttpEndpoint from "../lib/adaptor/http-adaptor/http-endpoint.ts";
-import { HttpEndpointInput } from "../lib/adaptor/http-adaptor/http-endpoint-input.ts";
+import { HttpAdaptor } from "../lib/adaptor/http-adaptor/adaptor.ts";
+import HttpEndpoint from "../lib/adaptor/http-adaptor/endpoint.ts";
+import { HttpEndpointInput } from "../lib/adaptor/http-adaptor/endpoint-input.ts";
 
 const server = new EnlaceServer();
 const httpAdaptor = new HttpAdaptor();
@@ -15,7 +15,16 @@ class SimpleEndpoint extends HttpEndpoint {
 }
 const endpoint = new SimpleEndpoint();
 
+const FunctionEndpoint = (input: HttpEndpointInput): string => {
+  const name = input.query("name");
+  return `functional endpoint name: ${name}`;
+};
+
 server.addEndpoint(
   endpoint,
   { expectedPath: "/", selectAdaptor: (adaptors) => adaptors[0] },
+);
+server.addEndpoint(
+  FunctionEndpoint,
+  { expectedPath: "/functional", selectAdaptor: (adaptors) => adaptors[0] },
 );

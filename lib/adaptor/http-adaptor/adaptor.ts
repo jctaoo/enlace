@@ -7,7 +7,7 @@ import {
   HttpBody,
   HttpInputMeta,
   HttpSearchParameter,
-} from "./http-endpoint-input.ts";
+} from "./endpoint-input.ts";
 import EndpointInput from "../../endpoint/endpoint-input.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";
 import { PathParameter } from "../../util/match-path.ts";

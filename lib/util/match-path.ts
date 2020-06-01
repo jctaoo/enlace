@@ -1,7 +1,6 @@
 export type PathParameter = { [key: string]: string };
 
 export const matchPath = (path: string, expectedPath: string): boolean => {
-  const parameters: PathParameter = {};
   expectedPath = expectedPath.replace(/\*/g, ".*")
   const regxToValidate = RegExp(expectedPath.replace(/:\([^\)].+?\)/g, ".*"));
   return path.match(regxToValidate) ? true : false;

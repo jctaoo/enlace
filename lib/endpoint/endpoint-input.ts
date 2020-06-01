@@ -3,7 +3,7 @@ import { PathParameter } from "../util/match-path.ts";
 
 export default interface EndpointInput<Meta, Body> {
   protocol: string;
-  requester: Client;
+  client: Client;
   path: string;
   meta: Meta;
   parameters: { [key: string]: string };
