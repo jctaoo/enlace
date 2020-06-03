@@ -1,13 +1,16 @@
 import { serve } from "https://deno.land/std/http/server.ts";
-import { MultipartReader, isFormFile, FormFile } from "https://deno.land/std/mime/mod.ts";
+import {
+  MultipartReader,
+  isFormFile,
+  FormFile,
+} from "https://deno.land/std/mime/mod.ts";
 import { pathToUrl } from "../lib/util/path-to-url.ts";
 const s = serve({ port: 8000 });
 
-const decoder = new TextDecoder('gb2312');
+const decoder = new TextDecoder("gb2312");
 const encoder = new TextEncoder();
 
 for await (const req of s) {
-
   // 获取url
   const url = pathToUrl(req.proto, req.headers, req.url);
   console.log(url.href);
@@ -31,7 +34,7 @@ for await (const req of s) {
   console.log(contentType); // application/json; text/plain; application/javascript; text/html; application/xml; pplication/x-www-form-urlencoded
   const body = await Deno.readAll(req.body);
   const json = decoder.decode(body);
-  console.log(json); 
+  console.log(json);
 
   // 传输form
   // console.log(conten tType);
@@ -44,7 +47,5 @@ for await (const req of s) {
   // console.log(formValue);
   // console.log(formFile?.size);
 
-
-  
   req.respond({ body: "Hello" });
 }

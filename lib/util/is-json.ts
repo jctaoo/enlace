@@ -4,6 +4,6 @@ const isJson = (obj: any): boolean | false => {
   } catch {
     return false;
   }
-} 
+};
 
 export default isJson;

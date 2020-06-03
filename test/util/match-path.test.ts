@@ -16,4 +16,4 @@ Deno.test("测试path参数提取", () => {
     parsePath("link-of-world", "link-*-:(place)"),
     { place: "world" },
   );
-})
+});

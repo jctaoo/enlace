@@ -7,7 +7,7 @@ enum HttpMethod {
   Options = "Options",
   Connect = "Connect",
   Trace = "Trace",
-  Patch = "Patch"
+  Patch = "Patch",
 }
 
 export default HttpMethod;

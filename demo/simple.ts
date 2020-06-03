@@ -13,18 +13,12 @@ class SimpleEndpoint extends HttpEndpoint {
     return `Hello ${name}`;
   }
 }
-const endpoint = new SimpleEndpoint();
 
 const FunctionEndpoint = (input: HttpEndpointInput): string => {
   const name = input.query("name");
   return `functional endpoint name: ${name}`;
 };
 
-server.addEndpoint(
-  endpoint,
-  { expectedPath: "/", selectAdaptor: (adaptors) => adaptors[0] },
-);
-server.addEndpoint(
-  FunctionEndpoint,
-  { expectedPath: "/functional", selectAdaptor: (adaptors) => adaptors[0] },
-);
+httpAdaptor.router.use("/", SimpleEndpoint);
+httpAdaptor.router.use("/functional", FunctionEndpoint);
+server.addEndpoint(FunctionEndpoint, { selectAdaptor: (e) => true, expectedPath: '/root-router' })

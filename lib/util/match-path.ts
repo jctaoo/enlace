@@ -1,20 +1,30 @@
 export type PathParameter = { [key: string]: string };
 
 export const matchPath = (path: string, expectedPath: string): boolean => {
-  expectedPath = expectedPath.replace(/\*/g, ".*")
+  expectedPath = expectedPath.replace(/\*/g, ".*");
   const regxToValidate = RegExp(expectedPath.replace(/:\([^\)].+?\)/g, ".*"));
   return path.match(regxToValidate) ? true : false;
-}
+};
 
-export const parsePath = (path: string, expectedPath: string): PathParameter => {
-  expectedPath = expectedPath.replace(/\*/g, ".*")
+export const parsePath = (
+  path: string,
+  expectedPath: string,
+): PathParameter => {
+  expectedPath = expectedPath.replace(/\*/g, ".*");
   const parameters: PathParameter = {};
-  const regxToExtractParameters = RegExp(expectedPath.replace(/:\([^\)].+?\)/g, ":\\((.+)\\)"));
-  const regxToExtractArguments = RegExp(expectedPath.replace(/:\([^\)].+?\)/g, "(.+)"));
-  const extractedParameters = expectedPath.match(regxToExtractParameters)?.slice(1);
+  const regxToExtractParameters = RegExp(
+    expectedPath.replace(/:\([^\)].+?\)/g, ":\\((.+)\\)"),
+  );
+  const regxToExtractArguments = RegExp(
+    expectedPath.replace(/:\([^\)].+?\)/g, "(.+)"),
+  );
+  const extractedParameters = expectedPath.match(regxToExtractParameters)
+    ?.slice(1);
   const extractedArguments = path.match(regxToExtractArguments)?.slice(1);
   if (extractedParameters && extractedArguments) {
-    extractedParameters.forEach((name, index) => parameters[name] = extractedArguments[index]);
+    extractedParameters.forEach((name, index) =>
+      parameters[name] = extractedArguments[index]
+    );
   }
   return parameters;
-}
+};
