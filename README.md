@@ -8,7 +8,7 @@ const httpAdaptor = new HttpAdaptor();
 server.addAdaptor(httpAdaptor, { host: "localhost", port: 20205 });
 ```
 
-## Define a class based `Endpoint`
+## Define a class based `Endpoint`:
 ```typescript
 class SimpleEndpoint extends HttpEndpoint {
   receive(input: HttpEndpointInput): string {
@@ -18,7 +18,22 @@ class SimpleEndpoint extends HttpEndpoint {
 }
 ```
 
-## Define a function based `Endpoint`
+## Define an async `Endpoint`: 
+```typescript
+class SimpleEndpoint extends HttpEndpoint {
+  async receive(input: HttpEndpointInput): Promise<string> {
+    const json = await input.json();
+    if (json && 'name' in json) {
+      const profile = json as { name: string };
+      return `Hello ${profile.name}`;
+    } else {
+      return `wrong request`;
+    }
+  }
+}
+```
+
+## Define a function based `Endpoint`:
 ```typescript
 const FunctionEndpoint = (input: HttpEndpointInput): string => {
   const name = input.query("name");
@@ -26,7 +41,7 @@ const FunctionEndpoint = (input: HttpEndpointInput): string => {
 };
 ```
 
-## Add `Endpoint` to server
+## Add `Endpoint` to server:
 ```typescript
 // use class type
 httpAdaptor.router.use("/", SimpleEndpoint);
