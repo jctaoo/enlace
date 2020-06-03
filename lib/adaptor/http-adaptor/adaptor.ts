@@ -21,6 +21,7 @@ export class HttpAdaptor extends Adaptor<HttpInputMeta, HttpBody> {
   protected host!: string;
   protected server!: EnlaceServer;
   public router: Router = new Router();
+  private encoder: TextEncoder = new TextEncoder();
 
   attachOnServer(
     server: EnlaceServer,
@@ -47,10 +48,15 @@ export class HttpAdaptor extends Adaptor<HttpInputMeta, HttpBody> {
     }
   }
 
-  public sendToClient(
+  public async sendToClient(
     input: EndpointInput<HttpInputMeta, HttpBody>,
     content: any,
-  ): void {
-    input.meta.respond({ body: `${content}` });
+  ): Promise<void> {
+    let response = content;
+    if (content instanceof Promise) {
+      response = await content;
+    }
+    const responseUnit8Array = this.encoder.encode(response);
+    input.meta.respond({ body: responseUnit8Array });
   }
 }

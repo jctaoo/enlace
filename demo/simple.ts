@@ -8,9 +8,14 @@ const httpAdaptor = new HttpAdaptor();
 server.addAdaptor(httpAdaptor, { host: "localhost", port: 20205 });
 
 class SimpleEndpoint extends HttpEndpoint {
-  receive(input: HttpEndpointInput): string {
-    const name = input.query("name");
-    return `Hello ${name}`;
+  async receive(input: HttpEndpointInput): Promise<string> {
+    const json = await input.json();
+    if (json && 'name' in json) {
+      const profile = json as { name: string };
+      return `Hello ${profile.name}`;
+    } else {
+      return `wrong request`;
+    }
   }
 }
 

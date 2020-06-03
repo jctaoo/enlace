@@ -41,16 +41,16 @@ export const convertToEndpoint = (endpoint: SmoothEndpoint): Endpoint => {
 }
 
 export interface Endpoint {
-  receive(input: EndpointInput<any, any>): any;
+  receive(input: EndpointInput<any, any>): any | Promise<any>;
 }
-export type FunctionalEndpoint = (input: any) => any;
+export type FunctionalEndpoint = (input: any) => any | Promise<any>;
 abstract class ClassEndpoint implements Endpoint {
   constructor() {}
-  abstract receive(input: EndpointInput<any, any>): any;
+  abstract receive(input: EndpointInput<any, any>): any | Promise<any>;
 }
 
 export abstract class NormalEndpoint<Meta> extends ClassEndpoint {
-  abstract receive(input: EndpointInput<Meta, any>): any;
+  abstract receive(input: EndpointInput<Meta, any>): any | Promise<any>;
 }
 
 export abstract class KeepAliveEndpoint<Meta> extends ClassEndpoint {
