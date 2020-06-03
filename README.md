@@ -28,13 +28,13 @@ const FunctionEndpoint = (input: HttpEndpointInput): string => {
 
 ## Add `Endpoint` to server
 ```typescript
-server.addEndpoint(
-  new SimpleEndpoint(),
-  { expectedPath: "/", selectAdaptor: (adaptors) => adaptors[0] },
-);
-server.addEndpoint(
-  FunctionEndpoint,
-  { expectedPath: "/functional", selectAdaptor: (adaptors) => adaptors[0] },
-);
+// use class type
+httpAdaptor.router.use("/", SimpleEndpoint);
+// use class instance 
+httpAdaptor.router.use("/", new SimpleEndpoint());
+// use function
+httpAdaptor.router.use("/functional", FunctionEndpoint);
+// bind on root router. support custom select adaptor.
+server.addEndpoint(FunctionEndpoint, { selectAdaptor: (e) => true, expectedPath: '/root-router' })
 ```
 
