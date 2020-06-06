@@ -1,10 +1,10 @@
-# Enlace is a server framework based on Deno.
+# Enlace 是一个 [Deno](https://deno.land/) 平台的服务端框架
 
-[中文](README(Chinese).md)
+[English](README.md)
 
-⚠️Note: It's under development
+⚠️注意: Enlace 正在开发中
 
-## Usage:
+## 使用:
 simple.ts
 ```typescript
 const HelloEndpoint = (input: HttpEndpointInput): string => {
@@ -24,9 +24,9 @@ curl http://localhost:20205/
 ```
 
 ## Endpoint:
-`Endpoint` is the foundation of Enlace and has nothing to do with network protocol(like HTTP, WebSocket...). So `Endpoint` is divided into `NormalEndpoint` to reply to the client instantly and `KeepAliveEndpoint` to support long connection instead of HttpEndpoint and WebSocketEndpoint. To implement `Endpoint` for different network protocols, simply create a class that inherits from `NormalEndpoint` or `KeepAliveEndpoint`. (`Endpoint` for Http and WebSocket built-in)
+`Endpoint` 是 Enlace 的基础, 并且与网络协议(例如 Http 和 WebSocket)无关。所以 'Endpoint' 被分作 `NormalEndpoint` 和 `KeepAliveEndpoint` 而不是 HttpEndpoint 和 WebSocketEndpoint。 `NormalEndpoint` 支持再收到客户端请求后即时回复客户端，`KeepAliveEndpoint` 支持与客户端建立长连接。要为不同的网络协议实现 `Endpoint`，只需要简单地创建一个继承自 `NormalEndpoint` 或 `KeepAliveEndpoint` 的类即可。(Http 和 WebSocket 是内置的)
 
-### Example code for defining the `Endpoint` for Http:
+### 支持 Http 协议的 `Endpoint` 的示例代码:
 endpoint.ts
 ```typescript
 abstract class HttpEndpoint extends NormalEndpoint {
@@ -43,7 +43,7 @@ class HttpEndpointInput implements EndpointInput {
   async fileFromForm(key: string): Promise<FormFile | null> { ... }
 }
 ```
-### Define a class based `Endpoint`:
+### 定义基于类的`Endpoint`:
 ```typescript
 class SimpleEndpoint extends HttpEndpoint {
   receive(input: HttpEndpointInput): string {
@@ -52,15 +52,15 @@ class SimpleEndpoint extends HttpEndpoint {
   }
 }
 ```
-### Define a function based `Endpoint`:
-> note: The functional style of Endpoint does not support KeepAliveEndpoint well for the time being
+### 定义基于函数的`Endpoint`:
+> 注意: 函数风格的 Endpoint 暂时无法完全支持 KeepAliveEndpint。
 ```typescript
 const FunctionEndpoint = (input: HttpEndpointInput): string => {
   const name = input.query("name");
   return `functional endpoint name: ${name}`;
 };
 ```
-### Define a `KeepAliveEndpint`(Take WebSocket as an example):
+### 定义与客户端建立长连接的`Endpoint`(以 WebSocket 为例):
 ```typescript
 class ChatEndpoint extends WebSocketEndpoint {
   receive(input: WebSocketEndpointInput): void {
@@ -69,20 +69,20 @@ class ChatEndpoint extends WebSocketEndpoint {
   }
 }
 ```
-### Use `Endpoint` in Enalce:
-Endpoint is very free to use in Enlace!!
+### 在 Enlace 中使用 Endpoint:
+Endpoint 的使用是十分自由的!!
 ```typescript
-// type of endpoint class 
+// 使用 Endpoint 类
 adaptor.router.use("/", SimpleEndpoint);
-// endpoint instance (support custom construction parameters)
+// 使用 Endpoint 实例 (支持自定义的构造参数)
 adaptor.router.use("/", new SimpleEndpoint());
-// function
+// 函数
 adaptor.router.use("/", FunctionEndpoint);
 ```
 
 ## Adaptor:
-`Adaptor` helps Enlace use different network protocols. (`Adaptor` for Http and WebSocket built-in)
-### Example code for defining the `Adaptor` for Http:
+`Adaptor` 帮助 Enlace 使用不同的网络协议。(Http 和 WebSocket 是内置的)
+### 支持 Http 协议的 `Adaptor` 的示例代码:
 adaptor.ts
 ```typescript
 class HttpAdaptor extends Adaptor {
@@ -91,19 +91,19 @@ class HttpAdaptor extends Adaptor {
   public sendToClient(client: Client, content: any) { ... }
 }
 ```
-### Use `Adaptor` in Enlace:
+### 在 Enlace 中使用 `Adaptor`:
 ```typescript 
 const httpAdaptor = new HttpAdaptor();
 server.addAdaptor(httpAdaptor, { host: "localhost", port: 20205 });
 ```
 
 ## MiddleWare
-comming soon...
+稍后...
 
-## Maintainers
+## 维护者
 
 [@jctaoo](https://github.com/jctaoo).
 
-## License
+## 使用许可
 
 [MIT](LICENSE) © jctaoo
