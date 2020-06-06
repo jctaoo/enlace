@@ -30,12 +30,10 @@ const FunctionEndpoint = (input: HttpEndpointInput): string => {
 };
 
 class ChatEndpoint extends WebSocketEndpoint {
-
   receive(input: WebSocketEndpointInput): void {
     console.log(`ws: ${input.body}`);
-    this.sendMessage(`hello ${input.body}`, input.client);
+    this.broadcast(`welcome ${input.body}`)
   }
-
 }
 
 httpAdaptor.router.use("/", SimpleEndpoint);
