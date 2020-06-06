@@ -15,6 +15,7 @@ server.addAdaptorWithConfigure(wsAdaptor, { host: "localhost", port: 20205 });
 class SimpleEndpoint extends HttpEndpoint {
   async receive(input: HttpEndpointInput): Promise<string> {
     const json = await input.json();
+    
     if (json && 'name' in json) {
       const profile = json as { name: string };
       return `Hello ${profile.name}`;

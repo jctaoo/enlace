@@ -37,6 +37,7 @@ export class HttpAdaptor extends Adaptor {
         searchParameters[key] = value;
       });
       input.queryParameters = searchParameters;
+      this.clientToInput.set(input.client, input);
       this.didReceiveContent(input, input.client);
     }
   }
