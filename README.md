@@ -12,14 +12,14 @@ const HelloEndpoint = (input: HttpEndpointInput): string => {
 };
 
 const httpAdaptor = new HttpAdaptor();
-httpAdaptor.router.use("/", HelloEndpoint);
+httpAdaptor.router.useEndpointOn("/", HelloEndpoint);
 
 const server = new EnlaceServer();
-server.addAdaptor(httpAdaptor, { host: "localhost", port: 20205 });
+server.addAdaptorWithConfigure(httpAdaptor, { host: "localhost", port: 20205 });
 ```
-request
+run
 ```shell
-deno run --allow-net --allow-read ./simple.ts
+deno run --allow-net --allow-read https://github.com/2pown/enlace/blob/develop/demo/simple_in_readme.ts
 curl http://localhost:20205/
 ```
 
@@ -73,11 +73,11 @@ class ChatEndpoint extends WebSocketEndpoint {
 Endpoint is very free to use in Enlace!!
 ```typescript
 // type of endpoint class 
-adaptor.router.use("/", SimpleEndpoint);
+adaptor.router.useEndpointOn("/", SimpleEndpoint);
 // endpoint instance (support custom construction parameters)
-adaptor.router.use("/", new SimpleEndpoint());
+adaptor.router.useEndpointOn("/", new SimpleEndpoint());
 // function
-adaptor.router.use("/", FunctionEndpoint);
+adaptor.router.useEndpointOn("/", FunctionEndpoint);
 ```
 
 ## Adaptor:
@@ -86,7 +86,6 @@ adaptor.router.use("/", FunctionEndpoint);
 adaptor.ts
 ```typescript
 class HttpAdaptor extends Adaptor {
-  public router: Router = new Router(this);
   attachOnServer(server: EnlaceServer, configure: AdaptorConfigure): void { ... }
   public sendToClient(client: Client, content: any) { ... }
 }
@@ -94,7 +93,7 @@ class HttpAdaptor extends Adaptor {
 ### Use `Adaptor` in Enlace:
 ```typescript 
 const httpAdaptor = new HttpAdaptor();
-server.addAdaptor(httpAdaptor, { host: "localhost", port: 20205 });
+server.addAdaptorWithConfigure(httpAdaptor, { host: "localhost", port: 20205 });
 ```
 
 ## MiddleWare

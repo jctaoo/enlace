@@ -12,14 +12,14 @@ const HelloEndpoint = (input: HttpEndpointInput): string => {
 };
 
 const httpAdaptor = new HttpAdaptor();
-httpAdaptor.router.use("/", HelloEndpoint);
+httpAdaptor.router.useEndpointOn("/", HelloEndpoint);
 
 const server = new EnlaceServer();
-server.addAdaptor(httpAdaptor, { host: "localhost", port: 20205 });
+server.addAdaptorWithConfigure(httpAdaptor, { host: "localhost", port: 20205 });
 ```
-request
+运行
 ```shell
-deno run --allow-net --allow-read ./simple.ts
+deno run --allow-net --allow-read https://github.com/2pown/enlace/blob/develop/demo/simple_in_readme.ts
 curl http://localhost:20205/
 ```
 
@@ -73,11 +73,11 @@ class ChatEndpoint extends WebSocketEndpoint {
 Endpoint 的使用是十分自由的!!
 ```typescript
 // 使用 Endpoint 类
-adaptor.router.use("/", SimpleEndpoint);
+adaptor.router.useEndpointOn("/", SimpleEndpoint);
 // 使用 Endpoint 实例 (支持自定义的构造参数)
-adaptor.router.use("/", new SimpleEndpoint());
+adaptor.router.useEndpointOn("/", new SimpleEndpoint());
 // 函数
-adaptor.router.use("/", FunctionEndpoint);
+adaptor.router.useEndpointOn("/", FunctionEndpoint);
 ```
 
 ## Adaptor:
@@ -86,7 +86,6 @@ adaptor.router.use("/", FunctionEndpoint);
 adaptor.ts
 ```typescript
 class HttpAdaptor extends Adaptor {
-  public router: Router = new Router(this);
   attachOnServer(server: EnlaceServer, configure: AdaptorConfigure): void { ... }
   public sendToClient(client: Client, content: any) { ... }
 }
@@ -94,7 +93,7 @@ class HttpAdaptor extends Adaptor {
 ### 在 Enlace 中使用 `Adaptor`:
 ```typescript 
 const httpAdaptor = new HttpAdaptor();
-server.addAdaptor(httpAdaptor, { host: "localhost", port: 20205 });
+server.addAdaptorWithConfigure(httpAdaptor, { host: "localhost", port: 20205 });
 ```
 
 ## MiddleWare
