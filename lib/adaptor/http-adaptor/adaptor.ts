@@ -8,7 +8,7 @@ import {
   HttpInputMeta,
   HttpSearchParameter,
 } from "./endpoint-input.ts";
-import { EndpointInput } from "../../core/endpoint.ts";
+import { EndpointInput, Client } from "../../core/endpoint.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";
 import { Router } from "../../core/router.ts";
 import { Log } from "../../util/mod.ts";
@@ -19,8 +19,8 @@ export class HttpAdaptor extends Adaptor<HttpInputMeta, HttpBody> {
 
   protected port!: int;
   protected host!: string;
-  protected server!: EnlaceServer;
-  public router: Router = new Router();
+  public server!: EnlaceServer;
+  public router: Router = new Router(this);
   private encoder: TextEncoder = new TextEncoder();
 
   attachOnServer(
@@ -44,19 +44,16 @@ export class HttpAdaptor extends Adaptor<HttpInputMeta, HttpBody> {
         searchParameters[key] = value;
       });
       input.parameters = searchParameters;
-      this.didReceiveContent(input);
+      this.clientToInput.set(input.client, input);
+      this.didReceiveContent(input, input.client);
     }
   }
-
-  public async sendToClient(
-    input: EndpointInput<HttpInputMeta, HttpBody>,
-    content: any,
-  ): Promise<void> {
-    let response = content;
-    if (content instanceof Promise) {
-      response = await content;
+  
+  public sendToClient(client: Client, content: any) {
+    const input = this.clientToInput.get(client);
+    if (input) {
+      const responseUnit8Array = this.encoder.encode(content);
+      input.meta.respond({ body: responseUnit8Array });
     }
-    const responseUnit8Array = this.encoder.encode(response);
-    input.meta.respond({ body: responseUnit8Array });
   }
 }

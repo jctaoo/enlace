@@ -1,6 +1,6 @@
 import { int } from "../util/mod.ts";
 import { EnlaceServer } from "../core/server.ts";
-import { EndpointInput } from "./endpoint.ts";
+import { EndpointInput, Client } from "./endpoint.ts";
 import { Router } from "../core/router.ts";
 
 export interface AdaptorConfigure {
@@ -9,20 +9,13 @@ export interface AdaptorConfigure {
 }
 
 export abstract class Adaptor<InputMeta, InputBody> {
+  public server?: EnlaceServer;
   abstract router: Router;
   abstract protocol: string;
-  abstract attachOnServer(
-    server: EnlaceServer,
-    configure: AdaptorConfigure,
-  ): void;
-  abstract sendToClient(
-    input: EndpointInput<InputMeta, InputBody>,
-    content: any,
-  ): void;
-
-  public didReceiveContent: (
-    input: EndpointInput<InputMeta, InputBody>,
-  ) => void = () => {};
-  protected onStart(): void {}
-  protected onDispose(): void {}
+  protected clientToInput: Map<Client, EndpointInput<InputMeta, InputBody>> = new Map();
+  abstract attachOnServer(server: EnlaceServer, configure: AdaptorConfigure): void;
+  abstract sendToClient(client: Client, content: any): void;
+  public didReceiveContent: (input: EndpointInput<InputMeta, InputBody>, client: Client) => void = () => { };
+  protected onStart(): void { }
+  protected onDispose(): void { }
 }

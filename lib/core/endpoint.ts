@@ -1,9 +1,18 @@
 import { Adaptor } from "./adaptor.ts";
 import { PathParameter } from "../util/match-path.ts";
+import { v4 } from "https://deno.land/std/uuid/mod.ts";
+import { MiddleWare } from "./middle_ware.ts";
+import { EnlaceServer } from "./server.ts";
 
-export interface Client {
-  ip: Deno.Addr;
-  id: string;
+export class Client {
+  constructor(
+    public readonly ip: Deno.Addr,
+    public readonly id: string
+  ) {}
+  static generate(ip: Deno.Addr): Client {
+    const id = v4.generate();
+    return new Client(ip, id);
+  }
 }
 
 export interface EndpointInput<Meta, Body> {
@@ -19,14 +28,14 @@ export interface EndpointInput<Meta, Body> {
 
 export interface EndpointConfigure {
   expectedPath: string;
-  selectAdaptor?: (adaptors: Adaptor<any, any>) => boolean;
+  selectAdaptor?: (adaptor: Adaptor<any, any>) => boolean;
 }
 
 export type SmoothEndpoint = typeof ClassEndpoint | Endpoint | FunctionalEndpoint;
 export const convertToEndpoint = (endpoint: SmoothEndpoint): Endpoint => {
   if (endpoint instanceof ClassEndpoint) {
     return endpoint;
-  } else if ('receive' in endpoint) {
+  } else if ('receive' in endpoint && 'server' in endpoint) {
     return endpoint;
   } else if (typeof endpoint === 'function') {
     try {
@@ -41,11 +50,13 @@ export const convertToEndpoint = (endpoint: SmoothEndpoint): Endpoint => {
 }
 
 export interface Endpoint {
+  server?: EnlaceServer;
   receive(input: EndpointInput<any, any>): any | Promise<any>;
 }
 export type FunctionalEndpoint = (input: any) => any | Promise<any>;
 abstract class ClassEndpoint implements Endpoint {
   constructor() {}
+  server?: EnlaceServer;
   abstract receive(input: EndpointInput<any, any>): any | Promise<any>;
 }
 
@@ -57,8 +68,8 @@ export abstract class KeepAliveEndpoint<Meta> extends ClassEndpoint {
   public clients: Client[] = [];
 
   abstract receive(input: EndpointInput<Meta, any>): void;
-  abstract requesterDidOffline(): void;
-  abstract requesterDidOnline(): void;
+  requesterDidOffline(): void {};
+  requesterDidOnline(): void {};
 
   public broadcast<Content>(
     message: Content,
@@ -69,7 +80,5 @@ export abstract class KeepAliveEndpoint<Meta> extends ClassEndpoint {
     }
   }
 
-  public sendMessage<Content>(message: Content, requester: Client): void {
-    // todo
-  }
+  public abstract async sendMessage(message: any, requester: Client): Promise<void>;
 }

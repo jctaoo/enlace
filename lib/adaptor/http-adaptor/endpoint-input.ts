@@ -22,8 +22,7 @@ export type HttpBody =
   | object;
 export type HttpSearchParameter = { [key: string]: string };
 
-export class HttpEndpointInput
-  implements EndpointInput<HttpInputMeta, HttpBody> {
+export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody> {
   protocol: string = "Http";
   client: Client;
   path: string;
@@ -33,9 +32,8 @@ export class HttpEndpointInput
   pathParameters: PathParameter = {};
 
   constructor(path: string, meta: HttpInputMeta) {
-    const id = v4.generate();
     const ip = meta.conn.remoteAddr;
-    this.client = { ip, id };
+    this.client = Client.generate(ip);
     this.meta = meta;
     this.path = path;
   }

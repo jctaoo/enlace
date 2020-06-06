@@ -2,6 +2,7 @@ import * as Testing from "https://deno.land/std/testing/asserts.ts";
 import { matchPath, parsePath } from "../../lib/util/match-path.ts";
 
 Deno.test("测试path匹配", () => {
+  Testing.assertEquals(matchPath("/room/id/233", "*"), true);
   Testing.assertEquals(matchPath("/favicon.ico", "/"), false);
   Testing.assertEquals(matchPath("somePath", "link-to-*"), false);
   Testing.assertEquals(matchPath("link-to-somewhere", "link-to-*"), true);
