@@ -2,8 +2,7 @@ import isJson from "./is-json.ts";
 import { matchPath, parsePath, PathParameter } from "./match-path.ts";
 import { pathToUrl } from "./path-to-url.ts";
 import LogClass from './log.ts';
-
-type Opaque<T, K> = T & { __opaque__: K };
+import TF from './true_function.ts';
 
 export const Util: {
   isJson: (obj: any) => false | object;
@@ -15,6 +14,6 @@ export const Util: {
   parsePath,
   pathToUrl,
 });
-export const Log = LogClass;
-
 export type int = number;
+export const Log = LogClass;
+export const TrueFunction = TF;

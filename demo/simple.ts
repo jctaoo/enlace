@@ -9,8 +9,8 @@ import { WebSocketAdaptor } from "../lib/adaptor/web_socket/adaptor.ts";
 const server = new EnlaceServer();
 const httpAdaptor = new HttpAdaptor();
 const wsAdaptor = new WebSocketAdaptor(httpAdaptor);
-server.addAdaptor(httpAdaptor, { host: "localhost", port: 20205 });
-server.addAdaptor(wsAdaptor, { host: "localhost", port: 20205 });
+server.addAdaptorWithConfigure(httpAdaptor, { host: "localhost", port: 20205 });
+server.addAdaptorWithConfigure(wsAdaptor, { host: "localhost", port: 20205 });
 
 class SimpleEndpoint extends HttpEndpoint {
   async receive(input: HttpEndpointInput): Promise<string> {
@@ -36,7 +36,7 @@ class ChatEndpoint extends WebSocketEndpoint {
   }
 }
 
-httpAdaptor.router.use("/", SimpleEndpoint);
-httpAdaptor.router.use("/functional", FunctionEndpoint);
-wsAdaptor.router.use("/your-name", ChatEndpoint);
-server.addEndpoint(FunctionEndpoint, { selectAdaptor: (e) => true, expectedPath: '/root-router' })
+httpAdaptor.router.useEndpointOn("/", SimpleEndpoint);
+httpAdaptor.router.useEndpointOn("/functional", FunctionEndpoint);
+wsAdaptor.router.useEndpointOn("/your-name", ChatEndpoint);
+server.addEndpointWithConfigure(FunctionEndpoint, { selectAdaptor: (e) => true, expectedPath: '/root-router' })

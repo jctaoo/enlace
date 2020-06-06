@@ -1,7 +1,4 @@
-import { EndpointInput, Client } from "../../core/endpoint.ts";
 import {
-  acceptWebSocket,
-  isWebSocketCloseEvent,
   isWebSocketPingEvent,
   WebSocket,
   WebSocketEvent,
@@ -9,11 +6,14 @@ import {
 } from "https://deno.land/std/ws/mod.ts";
 import { PathParameter } from "../../util/match-path.ts";
 import { Util } from "../../util/mod.ts";
+import { EndpointInput } from "../../endpoint_input.ts";
+import { Client } from "../../client.ts";
 
-export type WebSocketMeta = WebSocket;
-export type WebSocketBody = WebSocketEvent;
+type WebSocketMeta = WebSocket;
+type WebSocketBody = WebSocketEvent;
 
 export class WebSocketEndpointInput implements EndpointInput<WebSocketMeta, WebSocketBody> {
+
   protocol: string = "WebSocket";
   client: Client;
   path: string;
@@ -29,6 +29,8 @@ export class WebSocketEndpointInput implements EndpointInput<WebSocketMeta, WebS
     this.path = path;
     this.body = event;
   }
+
+  public parameter(key: string) { return null; }
 
   public get json(): object | null {
     const json = Util.isJson(this.body);

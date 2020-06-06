@@ -1,16 +1,11 @@
 import { ServerRequest } from "https://deno.land/std/http/server.ts";
-import { v4 } from "https://deno.land/std/uuid/mod.ts";
-import { EndpointInput } from "../../core/endpoint.ts";
-import { Client } from "../../core/endpoint.ts";
 import { PathParameter } from "../../util/match-path.ts";
-import {
-  MultipartReader,
-  isFormFile,
-  FormFile,
-} from "https://deno.land/std/mime/mod.ts";
+import { MultipartReader, FormFile } from "https://deno.land/std/mime/mod.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";
 import HttpMethod from "./method.ts";
 import { Util } from "../../util/mod.ts";
+import { EndpointInput } from "../../endpoint_input.ts";
+import { Client } from "../../client.ts";
 
 export type HttpInputMeta = ServerRequest;
 export type HttpBody =
@@ -24,12 +19,13 @@ export type HttpSearchParameter = { [key: string]: string };
 
 export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody> {
   protocol: string = "Http";
+
   client: Client;
   path: string;
   meta: HttpInputMeta;
-  parameters: HttpSearchParameter = {};
   body?: HttpBody;
   pathParameters: PathParameter = {};
+  private decoder = new TextDecoder();
 
   constructor(path: string, meta: HttpInputMeta) {
     const ip = meta.conn.remoteAddr;
@@ -38,7 +34,9 @@ export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody>
     this.path = path;
   }
 
-  private decoder = new TextDecoder();
+  public parameter(key: string) {
+    return this.query(key);
+  }
 
   get url(): URL {
     return pathToUrl(this.meta.proto, this.meta.headers, this.meta.url);
@@ -58,9 +56,10 @@ export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody>
     return header;
   }
 
+  // TODO 尝试用 lazy 解决
+  public queryParameters: { [key: string]: string } = {};
   query(key: string): string | null {
-    const queryValue = this.parameters[key];
-    return queryValue;
+    return this.queryParameters[key] || null;
   }
 
   // TODO 尝试用 lazy 解决
@@ -73,6 +72,7 @@ export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody>
     return this.$decodedBody ?? "";
   }
 
+  // TODO 尝试用 lazy 解决
   private $formBoundary: string | null = null;
   private checkBoundary() {
     if (this.$formBoundary == null) {
@@ -121,4 +121,5 @@ export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody>
     }
     return null;
   }
+
 }

@@ -1,72 +1,94 @@
-import {
-  AdaptorConfigure,
-  Adaptor as ComplexAdaptor,
-} from "./adaptor.ts";
-import { EndpointConfigure, SmoothEndpoint, convertToEndpoint, EndpointInput } from "./endpoint.ts";
-import { Endpoint } from "./endpoint.ts";
-import { Log } from "../util/mod.ts";
-import { Util } from "../util/mod.ts";
-import { green, yellow, rgb24 } from "https://deno.land/std/fmt/colors.ts";
-import { MiddleWareConfigure, MiddleWare, MiddleWareWithConfigure } from "./middle_ware.ts";
+import { Adaptor} from "./adaptor.ts";
+import { Endpoint, EndpointConfigure, UnkonwnEndpoint, convertUnkonwnEndpointToEndpoint, EndpointWithConfigure } from "./endpoint.ts";
+import { Util, Log, TrueFunction } from "../util/mod.ts";
+import { rgb24 } from "https://deno.land/std/fmt/colors.ts";
+import { MiddleWareConfigure, MiddleWare, MiddleWareWithConfigure } from "./middleware.ts";
 import { EnlaceServer } from "./server.ts";
-import { WebSocketEndpoint } from "../adaptor/web_socket/endpoint.ts";
 
-type Adaptor = ComplexAdaptor<any, any>;
 type RouterHolder = EnlaceServer | Adaptor;
-export type EndpointWithConfigure = {
-  configure: EndpointConfigure;
-  endpoint: Endpoint;
-};
 
+/**
+ * Function module that guides network requests to the correct Endpoint.
+ */
 export class Router {
-  constructor(
-    public readonly holder: RouterHolder
-  ) {}
+  /**
+   * The owner of the Router. It's might be an instance of EnlceServer 
+   * or Adaptor.
+   */
+  public readonly holder: RouterHolder;
 
+  constructor(holder: RouterHolder) {
+    this.holder = holder;
+  }
+
+  /**
+   * A boolean value indicates whether the router is on the EnlceServer 
+   * instance.
+   */
   public get isRootRouter(): boolean {
     return this.holder instanceof EnlaceServer;
   }
 
+  /**
+   * A map table store the relationship between endpoint configure and regisetered endpoint.
+   */
   protected configureToEndpoint: Map<EndpointConfigure, Endpoint> = new Map();
-  protected configureToMiddleWare: Map<MiddleWareConfigure, MiddleWare> = new Map();
 
+  /**
+   * A list value store the relationship between endpoint configure and registered middle ware.
+   */
+  protected middlewaresWithConfigure: Array<MiddleWareWithConfigure> = new Array();
+
+  /**
+   * A list value indicates all the registered endpoints in the Router.
+   */
   public get endpoints(): Endpoint[] {
     return [...this.configureToEndpoint.values()];
   }
 
-  protected addEndpointAndConfigure(endpoint: Endpoint, configure: EndpointConfigure) {
-    // todo 打印出 adaptor 类型
-    Log.info(`bind ${rgb24(configure.expectedPath, 0xffc42e)}`, 'Router')
-    this.configureToEndpoint.set(configure, endpoint);
-    if (this.holder instanceof EnlaceServer) {
-      endpoint.server = this.holder;
-    } else {
-      endpoint.server = this.holder.server;
-    }
+  /**
+   * A list value indicates all the registered middlewares in the Router.
+   */
+  public get middlewares(): MiddleWare[] {
+    return this.middlewaresWithConfigure.map(i => i.middleWare);
   }
 
-  protected addMiddleWareAndConfigure(middleWare: MiddleWare, configure: MiddleWareConfigure) {
-    // todo log here
-    this.configureToMiddleWare.set(configure, middleWare);
-  }
-
-  public useMiddleWare(path: string, middleWare: MiddleWare) {
+  /**
+   * Register the given middleware on the expected path.
+   * 
+   * @param path The expected path of the middleware. (@see EndpointConfigure.expectedPath)
+   * @param middleWare The middleware to register.
+   */
+  public useMiddlewareOn(path: string, middleware: MiddleWare) {
     const configure: MiddleWareConfigure = {
       expectedPath: path
     }
-    this.addMiddleWareAndConfigure(middleWare, configure);
+    this.addMiddleWareAndConfigure(middleware, configure);
   }
 
-  public use(path: string, endpoint: SmoothEndpoint) {
+  /**
+   * Register the given endpoint on the expected path.
+   * 
+   * @param path The expected path of the endpoint. (@see EndpointConfigure.expectedPath)
+   * @param endpoint The endpoint to register.
+   */
+  public useEndpointOn(path: string, endpoint: UnkonwnEndpoint) {
     const configure: EndpointConfigure = {
-      expectedPath: path
+      expectedPath: path,
+      selectAdaptor: TrueFunction,
     };
-    this.addEndpointAndConfigure(convertToEndpoint(endpoint), configure);
+    this.addEndpointAndConfigure(convertUnkonwnEndpointToEndpoint(endpoint), configure);
   }
 
-  public matchMiddleWare(path: string): MiddleWareWithConfigure[] {
+  /**
+   * Match the given actual-path with all the expected-path in middlewares' 
+   * configure to find out all the suitable middlewares to call.
+   * 
+   * @param path the actual-path
+   */
+  public matchMiddleWareWithPath(path: string): MiddleWareWithConfigure[] {
     let matched: MiddleWareWithConfigure[] = [];
-    for (const [configure, middleWare] of this.configureToMiddleWare) {
+    for (const {configure, middleWare} of this.middlewaresWithConfigure) {
       if (Util.matchPath(path, configure.expectedPath)) {
         matched.push({ configure, middleWare });
       }
@@ -74,7 +96,13 @@ export class Router {
     return matched;
   }
 
-  public match(path: string): EndpointWithConfigure | null {
+  /**
+   * Match the given actual-path with all the expected-path in endpoints' 
+   * configure to find out the most suitable endpoint to call.
+   * 
+   * @param path the actual-path
+   */
+  public matchEndpointWithPath(path: string): EndpointWithConfigure | null {
     let matched: EndpointWithConfigure | null = null;
     for (const [configure, endpoint] of this.configureToEndpoint) {
       if (Util.matchPath(path, configure.expectedPath)) {
@@ -88,15 +116,34 @@ export class Router {
     }
     return matched;
   }
-}
 
-export class RootRouter extends Router {
-  public useWithConfigure(configure: EndpointConfigure, endpoint: SmoothEndpoint) {
-    this.addEndpointAndConfigure(convertToEndpoint(endpoint), configure);
+  /**
+   * General method for registering endpoints.
+   * 
+   * @param endpoint The endpoint to register.
+   * @param configure The configure of endpoint to register.
+   */
+  protected addEndpointAndConfigure(endpoint: Endpoint, configure: EndpointConfigure) {
+    Log.info(`register ${rgb24(configure.expectedPath, 0xffc42e)} on endpoint`, 'Router');
+    this.configureToEndpoint.set(configure, endpoint);
+    // set server on endpoint
+    if (this.holder instanceof EnlaceServer) {
+      endpoint.server = this.holder;
+    } else {
+      endpoint.server = this.holder.server;
+    }
   }
 
-  public useMiddleWareWithConfigure(configure: MiddleWareConfigure, middleWare: MiddleWare) {
-    this.addMiddleWareAndConfigure(middleWare, configure);
+  /**
+   * General method for registering middlewares.
+   * 
+   * @param middleWare The middleware to register.
+   * @param configure The configure of middleware to register.
+   */
+  protected addMiddleWareAndConfigure(middleware: MiddleWare, configure: MiddleWareConfigure) {
+    Log.info(`register ${rgb24(configure.expectedPath, 0xffc42e)}`, 'Router');
+    this.middlewaresWithConfigure.push({ configure, middleWare: middleware });
   }
+
 }
 

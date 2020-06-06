@@ -1,8 +1,8 @@
-import { NormalEndpoint } from "../../core/endpoint.ts";
-import { HttpInputMeta, HttpEndpointInput } from "./endpoint-input.ts";
+import { HttpEndpointInput } from "./endpoint-input.ts";
+import { NormalEndpoint } from "../../normal_endpoint.ts";
 
-abstract class HttpEndpoint extends NormalEndpoint<HttpInputMeta> {
-  abstract receive(input: HttpEndpointInput): any | Promise<any>;
+abstract class HttpEndpoint extends NormalEndpoint {
+  abstract receive(input: HttpEndpointInput): unknown | Promise<unknown>;
 }
 
 export default HttpEndpoint;

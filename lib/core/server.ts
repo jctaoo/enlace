@@ -1,46 +1,101 @@
 import { Adaptor, AdaptorConfigure } from "./adaptor.ts";
-import { Endpoint, EndpointConfigure, FunctionalEndpoint, SmoothEndpoint, convertToEndpoint, Client } from "./endpoint.ts";
-import { EndpointInput } from "./endpoint.ts";
-import { matchPath, parsePath } from "../util/match-path.ts";
+import { EndpointConfigure, UnkonwnEndpoint, EndpointWithConfigure } from "./endpoint.ts";
 import { Util } from "../util/mod.ts";
-import { RootRouter, EndpointWithConfigure } from "./router.ts";
-import { MiddleWareWithConfigure, MiddleWare, MiddleWareConfigure } from "./middle_ware.ts";
-import { HttpEndpointInput } from "../adaptor/http-adaptor/endpoint-input.ts";
+import { MiddleWareWithConfigure, MiddleWare, MiddleWareConfigure } from "./middleware.ts";
+import { RootRouter } from "../root_router.ts";
+import { UnknownEndpointInput } from "../endpoint_input.ts";
+import { Client } from "../client.ts";
 
 export class EnlaceServer {
-  protected readonly adaptors: Map<Adaptor<any, any>, AdaptorConfigure>;
+  /**
+   * A map table store the relationship between adaptors and thier own configure.
+   */
+  protected readonly adaptorsToConfigure: Map<Adaptor, AdaptorConfigure> = new Map();
+
+  /**
+   * Router instance contained in the EnlaceServer.
+   */
   protected readonly rootRouter: RootRouter = new RootRouter(this);
 
-  constructor(adaptors: Map<Adaptor<any, any>, AdaptorConfigure> = new Map()) {
-    this.adaptors = adaptors;
+  /**
+   * A list value indicates all the adaptors in the EnlaceServer.
+   */
+  protected get adaptors(): Adaptor[] {
+    return [...this.adaptorsToConfigure.keys()];
   }
 
-  public getAdaptor(type: any): Adaptor<any, any> | null {
+  /**
+   * Register the given adaptor and it's own configure in the EnlaceServer.
+   * 
+   * @param adaptor The adaptor to register.
+   * @param configure The configure of the adaptor to register.
+   */
+  public addAdaptorWithConfigure(adaptor: Adaptor, configure: AdaptorConfigure) {
+    adaptor.attachOnServer(this, configure);
+    adaptor.didReceiveContent = (content, client) => {
+      this.receiveContent(adaptor, content, client).then();
+    };
+    this.adaptorsToConfigure.set(adaptor, configure);
+  }
+  
+  /**
+   * Register the given endpoint and it's own configure in the EnlaceServer.
+   * 
+   * @param adaptor The endpoint to register.
+   * @param configure The configure of the endpoint to register.
+   */
+  public addEndpointWithConfigure(endpoint: UnkonwnEndpoint, configure: EndpointConfigure) {
+    this.rootRouter.useEndpointWithConfigure(endpoint, configure);
+  }
+
+  /**
+   * Register the given middware and it's own configure in the EnlaceServer.
+   * 
+   * @param adaptor The middware to register.
+   * @param configure The configure of the middware to register.
+   */
+  public addMiddleWareWithConfigure(middware: MiddleWare, configure: MiddleWareConfigure) {
+    this.rootRouter.useMiddleWareWithConfigure(middware, configure);
+  }
+  
+  /**
+   * Find the instance of adapor whitch is registered by type of adaptor. 
+   * 
+   * // todo dont use any !!! 
+   * @param type The type of adaptor to find.
+   */
+  public getAdaptor(type: any): Adaptor | null {
     try {
-      for (const adaptor of [...this.adaptors.keys()]) {
+      for (const adaptor of this.adaptors) {
         if (adaptor instanceof type) {
           return adaptor;
         }
       }
       return null;
     } catch {
-      // todo log here
+      // todo throw custom error
       return null;
     }
   }
 
-  protected async receiveContent(
-    adaptor: Adaptor<any, any>,
-    input: EndpointInput<any, any>,
-    client: Client,
-  ): Promise<void> {
+  /**
+   * The callback function called by self when notified by a registered 
+   * adapter. @see Adaptor.didReceiveContent
+   * 
+   * @param adaptor The adapter that notified the EnlaceServer.
+   * @param input The package of the message from the client in the network 
+   *              request provided by the given adaptor.
+   * @param client Used to mark unique network requests. Provided by the given
+   *               adaptor.
+   */
+  protected async receiveContent(adaptor: Adaptor, input: UnknownEndpointInput, client: Client): Promise<void> {
     const path = input.path;
-    const middleWaresWithConfigure = this.getMiddlesWareWithPathAndAdaptor(path, adaptor);
+    const middleWaresWithConfigure = this.getMiddlewaresWithPathAndAdaptor(path, adaptor);
     const endpointWithConfigure = this.getEndpointWithPathAndAdaptor(path, adaptor);
 
     this.executeMiddleWaresWithInput(middleWaresWithConfigure.map(mw => mw.middleWare), input);
     if (endpointWithConfigure) {
-      const result = await this.executeEndpointWithConfigureWithPathAndInput(endpointWithConfigure, path, input);
+      const result = await this.executeEndpointWithConfigure(endpointWithConfigure, path, input);
       if (result) {
         adaptor.sendToClient(client, result);
       } else {
@@ -51,11 +106,50 @@ export class EnlaceServer {
     }
   }
 
-  protected async executeEndpointWithConfigureWithPathAndInput(
-    endpointWithConfigure: EndpointWithConfigure,
-    path: string,
-    input: EndpointInput<any, any>
-  ): Promise<any> {
+  /**
+   * Find all the suitable middlewares in the EnlaceServer and given adaptor. 
+   * 
+   * @param path the actual-path
+   * @param adaptor The adaptor to find middlewares in it. 
+   */
+  protected getMiddlewaresWithPathAndAdaptor(path: string, adaptor: Adaptor): MiddleWareWithConfigure[] {
+    return [
+      ...this.rootRouter.matchMiddleWareWithPath(path),
+      ...adaptor.router.matchMiddleWareWithPath(path),
+    ];
+  }
+
+  /**
+   * Find all the suitable enpdoints in the EnlaceServer and given adaptor. 
+   * 
+   * @param path the actual-path
+   * @param adaptor The adaptor to find endpoints in it. 
+   */
+  protected getEndpointWithPathAndAdaptor(path: string, adaptor: Adaptor): EndpointWithConfigure | null {
+    let endpointWithConfigure: EndpointWithConfigure | null;
+    // match in EnalceServer
+    const endpointWithConfigureInRoot = this.rootRouter.matchEndpointWithPath(path);
+    if (endpointWithConfigureInRoot && endpointWithConfigureInRoot.configure.selectAdaptor(adaptor)) {
+      endpointWithConfigure = endpointWithConfigureInRoot;
+    } else {
+      // match in given adaptor
+      const endpointWithConfigureInAdaptor = adaptor.router.matchEndpointWithPath(path);
+      endpointWithConfigure = endpointWithConfigureInAdaptor;
+    }
+    return endpointWithConfigure;
+  }
+
+  /**
+   * Execute the given endpoint and return it's result. If the result of 
+   * given endpoint's execution is a Promise, this method will unwrap it.
+   * 
+   * @param endpointWithConfigure The endpoint to execute and it's own configure.
+   * @param path the actual-path
+   * @param input The package of the message from the client in the network request.
+   *              Will be passed into the given endpoint.
+   * @returns The result of given endpoint's execution.
+   */
+  protected async executeEndpointWithConfigure(endpointWithConfigure: EndpointWithConfigure, path: string, input: UnknownEndpointInput): Promise<any> {
     const pathParameters = Util.parsePath(path, endpointWithConfigure.configure.expectedPath);
     input.pathParameters = pathParameters;
     let result = endpointWithConfigure.endpoint.receive(input);
@@ -65,48 +159,20 @@ export class EnlaceServer {
     return result;
   }
 
-  protected executeMiddleWaresWithInput(middleWares: MiddleWare[], input: EndpointInput<any, any>) {
-    if (middleWares.length > 0) {
-      const first = middleWares[0];
+  /**
+   * Use recursion to execute all the given middleware in turn.
+   * 
+   * @param middlewares The list value indicates all the middlewares to execute.
+   * @param input The package of the message from the client in the network request. Will be 
+   *              passed into each given middlewares.
+   */
+  protected executeMiddleWaresWithInput(middlewares: MiddleWare[], input: UnknownEndpointInput) {
+    if (middlewares.length > 0) {
+      const first = middlewares[0];
       first(input, () => {
-        this.executeMiddleWaresWithInput(middleWares.splice(1), input);
+        this.executeMiddleWaresWithInput(middlewares.splice(1), input);
       });
     }
   }
 
-  protected getMiddlesWareWithPathAndAdaptor(path: string, adaptor: Adaptor<any, any>): MiddleWareWithConfigure[] {
-    return [
-      ...this.rootRouter.matchMiddleWare(path),
-      ...adaptor.router.matchMiddleWare(path),
-    ];
-  }
-
-  protected getEndpointWithPathAndAdaptor(path: string, adaptor: Adaptor<any, any>): EndpointWithConfigure | null {
-    let endpointWithConfigure: EndpointWithConfigure | null;
-    const endpointWithConfigureInRoot = this.rootRouter.match(path);
-    if (endpointWithConfigureInRoot && endpointWithConfigureInRoot.configure.selectAdaptor && endpointWithConfigureInRoot.configure.selectAdaptor(adaptor)) {
-      endpointWithConfigure = endpointWithConfigureInRoot;
-    } else {
-      const endpointWithConfigureInAdaptor = adaptor.router.match(path);
-      endpointWithConfigure = endpointWithConfigureInAdaptor;
-    }
-    return endpointWithConfigure;
-  }
-
-  public addAdaptor(adaptor: Adaptor<any, any>, configure: AdaptorConfigure) {
-    adaptor.attachOnServer(this, configure);
-    adaptor.didReceiveContent = (content, client) => {
-      this.receiveContent(adaptor, content, client).then();
-    };
-    this.adaptors.set(adaptor, configure);
-    adaptor.server = this;
-  }
-
-  public addEndpoint(endpoint: SmoothEndpoint, configure: EndpointConfigure) {
-    this.rootRouter.useWithConfigure(configure, endpoint);
-  }
-
-  public addMiddleWare(middWare: MiddleWare, configure: MiddleWareConfigure) {
-    this.rootRouter.useMiddleWareWithConfigure(configure, middWare);
-  }
 }

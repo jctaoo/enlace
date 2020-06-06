@@ -2,19 +2,14 @@ import { serve } from "https://deno.land/std/http/server.ts";
 import { Adaptor, AdaptorConfigure } from "../../core/adaptor.ts";
 import { EnlaceServer } from "../../core/server.ts";
 import { int } from "../../util/mod.ts";
-import {
-  HttpEndpointInput,
-  HttpBody,
-  HttpInputMeta,
-  HttpSearchParameter,
-} from "./endpoint-input.ts";
-import { EndpointInput, Client } from "../../core/endpoint.ts";
+import { HttpEndpointInput, HttpSearchParameter } from "./endpoint-input.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";
 import { Router } from "../../core/router.ts";
 import { Log } from "../../util/mod.ts";
 import { rgb24, bold } from "https://deno.land/std/fmt/colors.ts";
+import { Client } from "../../client.ts";
 
-export class HttpAdaptor extends Adaptor<HttpInputMeta, HttpBody> {
+export class HttpAdaptor extends Adaptor {
   readonly protocol: string = "Http";
 
   protected port!: int;
@@ -23,10 +18,8 @@ export class HttpAdaptor extends Adaptor<HttpInputMeta, HttpBody> {
   public router: Router = new Router(this);
   private encoder: TextEncoder = new TextEncoder();
 
-  attachOnServer(
-    server: EnlaceServer,
-    configure: AdaptorConfigure,
-  ): void {
+  attachOnServer(server: EnlaceServer, configure: AdaptorConfigure): void {
+    super.attachOnServer(server, configure);
     this.host = configure.host;
     this.port = configure.port;
     this.server = server;
@@ -43,17 +36,19 @@ export class HttpAdaptor extends Adaptor<HttpInputMeta, HttpBody> {
       url.searchParams.forEach((value, key) => {
         searchParameters[key] = value;
       });
-      input.parameters = searchParameters;
-      this.clientToInput.set(input.client, input);
+      input.queryParameters = searchParameters;
       this.didReceiveContent(input, input.client);
     }
   }
   
   public sendToClient(client: Client, content: any) {
     const input = this.clientToInput.get(client);
-    if (input) {
+    if (input && input instanceof HttpEndpointInput) {
       const responseUnit8Array = this.encoder.encode(content);
-      input.meta.respond({ body: responseUnit8Array });
+      // todo more infomation in response
+      input.meta.respond({ body: responseUnit8Array })
+    } else {
+      // todo throw error here
     }
   }
 }

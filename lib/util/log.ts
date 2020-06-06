@@ -1,12 +1,7 @@
 import {
-  bgBlue,
-  red,
   bold,
-  bgCyan,
   black,
-  green,
   yellow,
-  blue,
   white,
   bgRed,
   bgGreen,
@@ -14,7 +9,7 @@ import {
 
 class Log {
   static info(message: string, tag: string = "") {
-    const coloredTag = bgGreen(white(black(bold(` ${tag} `))));
+    const coloredTag = white(bold(` ${tag} `));
     const coloredMessage = white(message);
     console.log((coloredTag ? `${coloredTag}  ` : "") + coloredMessage);
   }

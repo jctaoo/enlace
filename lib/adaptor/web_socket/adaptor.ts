@@ -1,32 +1,36 @@
 import { Adaptor, AdaptorConfigure } from "../../core/adaptor.ts";
-import { WebSocketEndpointInput, WebSocketBody, WebSocketMeta } from "./endpoint_input.ts";
+import { WebSocketEndpointInput } from "./endpoint_input.ts";
 import { Router } from "../../core/router.ts";
 import { EnlaceServer } from "../../core/server.ts";
-import { EndpointInput, Client } from "../../core/endpoint.ts";
 import Log from "../../util/log.ts";
-import { WebSocketMessage, acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
+import { acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
 import { HttpAdaptor } from "../http-adaptor/adaptor.ts";
 import { attachWebSocket } from "./attach_middle_ware.ts";
 import { rgb24, bold } from "https://deno.land/std/fmt/colors.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";
+import { Client } from "../../client.ts";
 
-export class WebSocketAdaptor extends Adaptor<WebSocketMeta, WebSocketBody> {
-  readonly protocol: string = "WebSocket";
+export class WebSocketAdaptor extends Adaptor {
+
+  static readonly protocol: string = "WebSocket";
   public router: Router = new Router(this);
   private encoder: TextEncoder = new TextEncoder();
+  protected readonly httpAdaptor: HttpAdaptor;
 
-  constructor(
-    protected readonly httpAdaptor: HttpAdaptor
-  ) { super(); }
+  constructor(httpAdaptor: HttpAdaptor) { 
+    super();
+    this.httpAdaptor = httpAdaptor;
+  }
 
   public attachOnServer(server: EnlaceServer, configure: AdaptorConfigure) {
-    this.httpAdaptor.router.useMiddleWare("*", attachWebSocket(async (input) => {
+    super.attachOnServer(server, configure);
+    Log.info(`listen on port ${rgb24(bold(`${configure.port}`), 0xb7b1ff)}`, "WebSocket");
+    this.httpAdaptor.router.useMiddlewareOn("*", attachWebSocket(async (input) => {
       const { conn, r: bufReader, w: bufWriter, headers } = input.meta;
       try {
         const sock = await acceptWebSocket({
           conn, bufReader, bufWriter, headers,
         });
-        Log.info(`listen on port ${rgb24(bold(`${configure.port}`), 0xb7b1ff)}`, "WebSocket");
         try {
           for await (const event of sock) {
             const url = pathToUrl(input.meta.proto, input.meta.headers, input.meta.url);
@@ -49,11 +53,13 @@ export class WebSocketAdaptor extends Adaptor<WebSocketMeta, WebSocketBody> {
 
   public sendToClient(client: Client, content: any) {
     const input = this.clientToInput.get(client);
-    if (input) {
+    if (input && input instanceof WebSocketEndpointInput) {
       const responseUnit8Array = this.encoder.encode(content);
       input.meta.send(responseUnit8Array).then(() => {
         // todo send done
       });
+    } else {
+      // todo throw error here
     }
   }
 
