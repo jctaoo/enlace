@@ -1,10 +1,6 @@
 import { EnlaceServer } from "../lib/core/server.ts";
-import { HttpAdaptor } from "../lib/adaptor/http-adaptor/adaptor.ts";
-import HttpEndpoint from "../lib/adaptor/http-adaptor/endpoint.ts";
-import { HttpEndpointInput } from "../lib/adaptor/http-adaptor/endpoint-input.ts";
-import { WebSocketEndpoint } from "../lib/adaptor/web_socket/endpoint.ts";
-import { WebSocketEndpointInput } from "../lib/adaptor/web_socket/endpoint_input.ts";
-import { WebSocketAdaptor } from "../lib/adaptor/web_socket/adaptor.ts";
+import { HttpAdaptor, HttpEndpoint, HttpEndpointInput } from "../lib/adaptor/http_adaptor/mod.ts";
+import { WebSocketEndpoint, WebSocketEndpointInput, WebSocketAdaptor } from "../lib/adaptor/web_socket/mod.ts";
 
 const server = new EnlaceServer();
 const httpAdaptor = new HttpAdaptor();
@@ -15,7 +11,7 @@ server.addAdaptorWithConfigure(wsAdaptor, { host: "localhost", port: 20205 });
 class SimpleEndpoint extends HttpEndpoint {
   async receive(input: HttpEndpointInput): Promise<string> {
     const json = await input.json();
-    
+
     if (json && 'name' in json) {
       const profile = json as { name: string };
       return `Hello ${profile.name}`;

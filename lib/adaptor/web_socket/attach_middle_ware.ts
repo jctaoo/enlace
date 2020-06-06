@@ -1,5 +1,5 @@
 import { MiddleWare } from "../../core/middleware.ts";
-import { HttpEndpointInput } from "../http-adaptor/endpoint-input.ts";
+import { HttpEndpointInput } from "../http_adaptor/mod.ts";
 import { UnknownEndpointInput } from "../../endpoint_input.ts";
 
 type AttachWebSocketCreator = (callBack: (input: HttpEndpointInput) => void) => MiddleWare;

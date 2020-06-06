@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std/http/server.ts";
 import { Adaptor, AdaptorConfigure } from "../../core/adaptor.ts";
 import { EnlaceServer } from "../../core/server.ts";
 import { int } from "../../util/mod.ts";
-import { HttpEndpointInput, HttpSearchParameter } from "./endpoint-input.ts";
+import { HttpEndpointInput, HttpSearchParameter } from "./endpoint_input.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";
 import { Router } from "../../core/router.ts";
 import { Log } from "../../util/mod.ts";
