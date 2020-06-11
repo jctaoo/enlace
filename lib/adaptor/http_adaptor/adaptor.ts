@@ -45,7 +45,8 @@ export class HttpAdaptor extends Adaptor {
   public sendToClient(client: Client, content: any) {
     const input = this.clientToInput.get(client);
     if (input && input instanceof HttpEndpointInput) {
-      const responseUnit8Array = this.encoder.encode(content);
+      // todo
+      let responseUnit8Array = this.encoder.encode(`${content}`);
       // todo more infomation in response
       input.meta.respond({ body: responseUnit8Array })
     } else {

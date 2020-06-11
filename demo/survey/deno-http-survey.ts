@@ -4,7 +4,7 @@ import {
   isFormFile,
   FormFile,
 } from "https://deno.land/std/mime/mod.ts";
-import { pathToUrl } from "../lib/util/path-to-url.ts";
+import { pathToUrl } from "../../lib/util/path-to-url.ts";
 const s = serve({ port: 8000 });
 
 const decoder = new TextDecoder("gb2312");

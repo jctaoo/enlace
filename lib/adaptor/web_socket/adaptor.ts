@@ -4,7 +4,7 @@ import { Router } from "../../core/router.ts";
 import { EnlaceServer } from "../../core/server.ts";
 import Log from "../../util/log.ts";
 import { acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
-import { HttpAdaptor } from "../http-adaptor/adaptor.ts";
+import { HttpAdaptor } from "../http_adaptor/adaptor.ts";
 import { attachWebSocket } from "./attach_middle_ware.ts";
 import { rgb24, bold } from "https://deno.land/std/fmt/colors.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";

@@ -2,9 +2,9 @@ import { Adaptor, AdaptorConfigure } from "./adaptor.ts";
 import { EndpointConfigure, UnkonwnEndpoint, EndpointWithConfigure } from "./endpoint.ts";
 import { Util } from "../util/mod.ts";
 import { MiddleWareWithConfigure, MiddleWare, MiddleWareConfigure } from "./middleware.ts";
-import { RootRouter } from "../root_router.ts";
 import { UnknownEndpointInput } from "../endpoint_input.ts";
 import { Client } from "../client.ts";
+import { Router } from "./router.ts";
 
 export class EnlaceServer {
   /**
@@ -15,7 +15,7 @@ export class EnlaceServer {
   /**
    * Router instance contained in the EnlaceServer.
    */
-  protected readonly rootRouter: RootRouter = new RootRouter(this);
+  public readonly router: Router = new Router(this);
 
   /**
    * A list value indicates all the adaptors in the EnlaceServer.
@@ -36,26 +36,6 @@ export class EnlaceServer {
       this.receiveContent(adaptor, content, client).then();
     };
     this.adaptorsToConfigure.set(adaptor, configure);
-  }
-  
-  /**
-   * Register the given endpoint and it's own configure in the EnlaceServer.
-   * 
-   * @param adaptor The endpoint to register.
-   * @param configure The configure of the endpoint to register.
-   */
-  public addEndpointWithConfigure(endpoint: UnkonwnEndpoint, configure: EndpointConfigure) {
-    this.rootRouter.useEndpointWithConfigure(endpoint, configure);
-  }
-
-  /**
-   * Register the given middware and it's own configure in the EnlaceServer.
-   * 
-   * @param adaptor The middware to register.
-   * @param configure The configure of the middware to register.
-   */
-  public addMiddleWareWithConfigure(middware: MiddleWare, configure: MiddleWareConfigure) {
-    this.rootRouter.useMiddleWareWithConfigure(middware, configure);
   }
   
   /**
@@ -114,7 +94,7 @@ export class EnlaceServer {
    */
   protected getMiddlewaresWithPathAndAdaptor(path: string, adaptor: Adaptor): MiddleWareWithConfigure[] {
     return [
-      ...this.rootRouter.matchMiddleWareWithPath(path),
+      ...this.router.matchMiddleWareWithPath(path),
       ...adaptor.router.matchMiddleWareWithPath(path),
     ];
   }
@@ -128,7 +108,7 @@ export class EnlaceServer {
   protected getEndpointWithPathAndAdaptor(path: string, adaptor: Adaptor): EndpointWithConfigure | null {
     let endpointWithConfigure: EndpointWithConfigure | null;
     // match in EnalceServer
-    const endpointWithConfigureInRoot = this.rootRouter.matchEndpointWithPath(path);
+    const endpointWithConfigureInRoot = this.router.matchEndpointWithPath(path);
     if (endpointWithConfigureInRoot && endpointWithConfigureInRoot.configure.selectAdaptor(adaptor)) {
       endpointWithConfigure = endpointWithConfigureInRoot;
     } else {

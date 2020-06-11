@@ -1,8 +1,7 @@
-import { HttpEndpointInput } from "../lib/adaptor/http-adaptor/endpoint-input.ts";
-import { HttpAdaptor } from "../lib/adaptor/http-adaptor/adaptor.ts";
+import { HttpAdaptor } from "../lib/adaptor/http_adaptor/adaptor.ts";
 import { EnlaceServer } from "../lib/core/server.ts";
 
-const HelloEndpoint = (input: HttpEndpointInput): string => {
+const HelloEndpoint = (): string => {
   return `Hello World`;
 };
 

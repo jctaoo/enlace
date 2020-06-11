@@ -24,6 +24,15 @@ export interface EndpointConfigure {
   selectAdaptor: (adaptor: Adaptor) => boolean;
 }
 
+export function combineEndpointConfigure(lhs: EndpointConfigure, rhs: EndpointConfigure): EndpointConfigure {
+  if (lhs.expectedPath.endsWith('/')) {
+    lhs.expectedPath = lhs.expectedPath.slice(0, lhs.expectedPath.length - 1);
+  }
+  const expectedPath = lhs.expectedPath + rhs.expectedPath;
+  const selectAdaptor = rhs.selectAdaptor;
+  return { expectedPath, selectAdaptor };
+}
+
 /**
  * Used when the form (class or function) of the endpoint is unknown.
  */

@@ -1,11 +1,13 @@
-import { Adaptor} from "./adaptor.ts";
+import { Adaptor } from "./adaptor.ts";
 import { Endpoint, EndpointConfigure, UnkonwnEndpoint, convertUnkonwnEndpointToEndpoint, EndpointWithConfigure } from "./endpoint.ts";
 import { Util, Log, TrueFunction } from "../util/mod.ts";
 import { rgb24 } from "https://deno.land/std/fmt/colors.ts";
 import { MiddleWareConfigure, MiddleWare, MiddleWareWithConfigure } from "./middleware.ts";
 import { EnlaceServer } from "./server.ts";
+import { isController, getEndpointsInController } from "../controller.ts";
 
 type RouterHolder = EnlaceServer | Adaptor;
+type RouteItem = UnkonwnEndpoint | Object;
 
 /**
  * Function module that guides network requests to the correct Endpoint.
@@ -68,16 +70,35 @@ export class Router {
 
   /**
    * Register the given endpoint on the expected path.
+   * @see Router.useEndpoint
    * 
    * @param path The expected path of the endpoint. (@see EndpointConfigure.expectedPath)
    * @param endpoint The endpoint to register.
    */
-  public useEndpointOn(path: string, endpoint: UnkonwnEndpoint) {
-    const configure: EndpointConfigure = {
-      expectedPath: path,
-      selectAdaptor: TrueFunction,
-    };
-    this.addEndpointAndConfigure(convertUnkonwnEndpointToEndpoint(endpoint), configure);
+  public useEndpointOn(path: string, endpoint: RouteItem): Router {
+    return this.useEndpoint(endpoint, { expectedPath: path, selectAdaptor: TrueFunction });
+  }
+
+  /**
+   * The general method to register a endpoint or a controller on the router.
+   * If the endpoint parameter is passed into a controller, all configure of
+   * endpoints in the controller will in inherit the configure parameter. 
+   * Otherwise, the configure parameter must be passed into.
+   * 
+   * @param endpoint The endpoint to register.
+   * @param configure The configure of endpint.
+   */
+  public useEndpoint(endpoint: RouteItem, configure?: EndpointConfigure): Router {
+    if (isController(endpoint)) {
+      const endpoints = getEndpointsInController(endpoint);
+      for (const { endpoint, configure } of endpoints) {
+        this.addEndpointWithConfigure(convertUnkonwnEndpointToEndpoint(endpoint), configure);
+      }
+    } else {
+      // todo waraing if the configure is not be passed into.
+      this.addEndpointWithConfigure(convertUnkonwnEndpointToEndpoint(<UnkonwnEndpoint>endpoint), configure!);
+    }
+    return this;
   }
 
   /**
@@ -88,7 +109,7 @@ export class Router {
    */
   public matchMiddleWareWithPath(path: string): MiddleWareWithConfigure[] {
     let matched: MiddleWareWithConfigure[] = [];
-    for (const {configure, middleWare} of this.middlewaresWithConfigure) {
+    for (const { configure, middleWare } of this.middlewaresWithConfigure) {
       if (Util.matchPath(path, configure.expectedPath)) {
         matched.push({ configure, middleWare });
       }
@@ -123,7 +144,7 @@ export class Router {
    * @param endpoint The endpoint to register.
    * @param configure The configure of endpoint to register.
    */
-  protected addEndpointAndConfigure(endpoint: Endpoint, configure: EndpointConfigure) {
+  protected addEndpointWithConfigure(endpoint: Endpoint, configure: EndpointConfigure) {
     Log.info(`register ${rgb24(configure.expectedPath, 0xffc42e)} on endpoint`, 'Router');
     this.configureToEndpoint.set(configure, endpoint);
     // set server on endpoint
