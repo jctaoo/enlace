@@ -7,6 +7,19 @@ import { Client } from "../client.ts";
 import { Router } from "./router.ts";
 
 export class EnlaceServer {
+
+  #isStarted: boolean = false;
+  public get isStarted(): boolean {
+    return this.#isStarted;
+  }
+
+  public start() {
+    this.#isStarted = true;
+    for (const [adaptor, configure] of this.adaptorsToConfigure) {
+      adaptor.attachOnServer(this, configure);
+    }
+  }
+
   /**
    * A map table store the relationship between adaptors and thier own configure.
    */
@@ -31,7 +44,9 @@ export class EnlaceServer {
    * @param configure The configure of the adaptor to register.
    */
   public addAdaptorWithConfigure(adaptor: Adaptor, configure: AdaptorConfigure) {
-    adaptor.attachOnServer(this, configure);
+    if (this.#isStarted) {
+      adaptor.attachOnServer(this, configure);
+    }
     adaptor.didReceiveContent = (content, client) => {
       this.receiveContent(adaptor, content, client).then();
     };

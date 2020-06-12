@@ -2,6 +2,6 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "stripInternal": true
+    // "stripInternal": true
   }
 }

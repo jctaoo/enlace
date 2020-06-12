@@ -4,7 +4,7 @@ export const typeInfo: Map<Constructor<any>, Constructor<any>[]> = new Map();
 
 export class Injector {
 
-  public shard = new Injector();
+  public static shard = new Injector();
   private constructor() { }
   private itemToProvider: Map<InjectItem, InjectedItemProvider> = new Map();
 
