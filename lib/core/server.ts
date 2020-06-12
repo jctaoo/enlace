@@ -5,6 +5,7 @@ import { MiddleWareWithConfigure, MiddleWare, MiddleWareConfigure } from "./midd
 import { UnknownEndpointInput } from "../endpoint_input.ts";
 import { Client } from "../client.ts";
 import { Router } from "./router.ts";
+import ObservableMap from "../util/observable_map.ts";
 
 export class EnlaceServer {
 
@@ -23,7 +24,7 @@ export class EnlaceServer {
   /**
    * A map table store the relationship between adaptors and thier own configure.
    */
-  protected readonly adaptorsToConfigure: Map<Adaptor, AdaptorConfigure> = new Map();
+  public readonly adaptorsToConfigure: ObservableMap<Adaptor, AdaptorConfigure> = new ObservableMap();
 
   /**
    * Router instance contained in the EnlaceServer.

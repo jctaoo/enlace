@@ -11,10 +11,16 @@ export interface EnlaceApplicationConfigure {
 
 export abstract class Application {
 
-  onStartUp(): void | Promise<void> { }
+  onStartUp(): void | Promise<void> { 
+    // todo pass
+  }
 
   configure(injector: Injector, server: EnlaceServer): void | Promise<void> { 
-    // todo wait...
+    // todo pass
+  }
+
+  onAdaptorAdded(adaptor: Adaptor): void {
+    // todo pass
   }
 
 }

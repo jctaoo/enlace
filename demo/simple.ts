@@ -4,6 +4,8 @@ import { ControllerMapping } from "../lib/decorators/controller.ts";
 import { Endpint } from "../lib/decorators/endpoint.ts";
 import { Application } from "../lib/application.ts";
 import { MainApplication } from "../lib/decorators/main_application.ts";
+import { Injector } from "../lib/core/injector.ts";
+import { Adaptor } from "../lib/core/mod.ts";
 
 @ControllerMapping({ expectedPath: '/cat', selectAdaptor: item => item instanceof HttpAdaptor })
 class CatController {
@@ -18,9 +20,15 @@ class CatController {
 @MainApplication
 class DemoApplication extends Application {
 
-  onStartUp() {
-    console.log('Hello World')
-    
+  configure(injector: Injector, server: EnlaceServer): void | Promise<void> { 
+    const http = new HttpAdaptor();
+    server.addAdaptorWithConfigure(http, { host: '0.0.0.0', port: 20205 })
+  }
+
+  onAdaptorAdded(adaptor: Adaptor) {
+    if (adaptor instanceof HttpAdaptor) {
+      adaptor.router.useEndpointOn('/', new CatController());
+    }
   }
 
 }
