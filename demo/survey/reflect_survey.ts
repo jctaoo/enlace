@@ -6,6 +6,12 @@ const PATH_METADATA = 'path';
 const Controller = (path: string): ClassDecorator => {
   return target => {
     Reflect.defineMetadata(PATH_METADATA, path, target);
+
+    const bm = Reflect.getMetadata('design:paramtypes', target);
+    if (bm) {
+      console.log(bm[0] === Foo)
+      console.log(bm)
+    }
   }
 }
 
@@ -53,3 +59,12 @@ class SomeClass {
 console.log(Reflect.getMetadata(PATH_METADATA, SomeClass)); // '/test'
 
 console.log(mapRoute(new SomeClass()));
+
+
+class Foo {
+  constructor(name: string) {}
+}
+@Controller('')
+class Bar {
+  constructor(foo: Foo) {}
+}
