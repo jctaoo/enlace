@@ -10,36 +10,44 @@ export class EnlaceEnvironment {
 
   public static shard = new EnlaceEnvironment();
   private server = new EnlaceServer();
-  private app: Application | null = null;
+  private app!: Application;
   private isReady: boolean = false;
-  private watingEvent: Function[] = [];
 
   private constructor() {
     this.server.adaptorsToConfigure.observeChange(updated => {
       if (this.isReady) {
         this.app?.onAdaptorAdded(updated.key);
-      } else {
-        this.watingEvent.push(() => {
-          this.app?.onAdaptorAdded(updated.key);
-        })
       }
     })
   }
 
-  run(app: Application): void {
+  private initApp(app: Application) {
     if (!this.app) {
       this.app = app;
-      this.server.start();
-      app.onStartUp();
-      app.configure(Injector.shard, this.server);
-      this.isReady = true;
-      this.watingEvent.forEach(t => t());
-      this.watingEvent = [];
-      Log.success("\nenlace is ready!!")
-      Log.ask();
     } else {
       // todo log here
     }
+  }
+
+  async scan(): Promise<void> {
+    // todo 
+  }
+
+  async run(app: Application): Promise<void> {
+    this.initApp(app);
+
+    if (this.app.appConfig.scan) {
+      await this.scan();
+    }
+    this.app.configure(Injector.shard, this.server);
+    this.server.start();
+    this.isReady = true;
+    for (const [key] of this.server.adaptorsToConfigure) {
+      this.app.onAdaptorAdded(key);
+    }
+    this.app.onStartUp();
+    Log.success("\nenlace is ready!!")
+    Log.ask();
   }
 
 }

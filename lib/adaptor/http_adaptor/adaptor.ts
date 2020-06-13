@@ -44,7 +44,7 @@ export class HttpAdaptor extends Adaptor {
     } catch (error) {
       const message: string = error.message
       if (message.startsWith("Address already in use")) {
-        Log.error(`Port ${this.port} is occupied, enlace will exit.`)
+        Log.error(`Port ${this.port} is occupied, enlace will exit.`, 'Http')
         Deno.exit(100)
       }
     }

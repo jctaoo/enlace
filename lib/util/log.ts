@@ -17,19 +17,22 @@ class Log {
     console.log((coloredTag ? `${tag === "" ? "" : coloredTag}` : "") + coloredMessage);
   }
 
-  static success(message: string) {
+  static success(message: string, tag: string = "") {
+    const coloredTag = yellow(bold(`[${tag}]  `));
     const coloredMessage = green(bold(message));
-    console.log(coloredMessage);
+    console.log((coloredTag ? `${tag === "" ? "" : coloredTag}` : "") + coloredMessage);
   }
 
-  static warning(message: string) {
+  static warning(message: string, tag: string = "") {
+    const coloredTag = yellow(bold(`[${tag}]  `));
     const coloredMessage = yellow(bold(message));
-    console.log(coloredMessage);
+    console.log((coloredTag ? `${tag === "" ? "" : coloredTag}` : "") + coloredMessage);
   }
 
-  static error(message: string) {
+  static error(message: string, tag: string = "") {
+    const coloredTag = yellow(bold(`[${tag}]  `));
     const coloredMessage = red(bold(message));
-    console.log(coloredMessage);
+    console.log((coloredTag ? `${tag === "" ? "" : coloredTag}` : "") + coloredMessage);
   }
 
   static async ask(question: string = ""): Promise<string> {

@@ -8,10 +8,16 @@ import { AdaptorConfigure } from "./adaptor.ts";
 export interface EnlaceApplicationConfigure {
   host?: string
   port: int
+  scan: boolean
+}
+export const defaultEnlaceApplicationConfigure = {
+  host: 'localhost',
+  port: 20203,
+  scan: false,
 }
 
 export function isEnlaceApplicationConfigure(obj: any): boolean {
-  return typeof obj === 'object' && 'port' in obj;
+  return typeof obj === 'object' && 'port' in obj && 'scan' in obj;
 }
 
 function convertEnlaceApplicationConfigureToAdaptorConfigure(configure: EnlaceApplicationConfigure): AdaptorConfigure {
@@ -25,7 +31,7 @@ function convertEnlaceApplicationConfigureToAdaptorConfigure(configure: EnlaceAp
 export abstract class Application {
 
   constructor(
-    protected appConfig: EnlaceApplicationConfigure = { host: 'localhost', port: 20203 }
+    public appConfig: EnlaceApplicationConfigure = defaultEnlaceApplicationConfigure
   ) { }
 
   onStartUp(): void | Promise<void> {
@@ -51,7 +57,7 @@ export class EnlaceApplication extends Application {
 
   constructor(
     protected _configure: (injector: Injector, server: EnlaceServer) => void = () => { },
-    protected appConfig: EnlaceApplicationConfigure = { host: 'localhost', port: 20203 },
+    public appConfig: EnlaceApplicationConfigure = defaultEnlaceApplicationConfigure,
   ) {
     super(appConfig);
   }

@@ -9,7 +9,7 @@ export function MainApplication(target: Constructor<Application>): void;
 export function MainApplication(arg: any): any {
   const fn = (target: Constructor<Application>, configure?: EnlaceApplicationConfigure) => {
     console.clear();
-    Log.success('starting enlace...\n');
+    Log.success('starting...\n', 'enlace');
     Log.info(
       "\t" + "  ___  ____  / /___ _________ " + "\n" +
       "\t" + " / _ \\/ __ \\/ / __ `/ ___/ _ \\" + "\n" +
