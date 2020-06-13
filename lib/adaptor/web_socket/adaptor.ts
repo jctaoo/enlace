@@ -24,7 +24,7 @@ export class WebSocketAdaptor extends Adaptor {
 
   public attachOnServer(server: EnlaceServer, configure: AdaptorConfigure) {
     super.attachOnServer(server, configure);
-    Log.info(`listen on port ${rgb24(bold(`${configure.port}`), 0xb7b1ff)}`, "WebSocket");
+    Log.info(`listen on ${rgb24(bold(`ws://${configure.host}:${configure.port}/`), 0xb7b1ff)}`, "WebSocket");
     this.httpAdaptor.router.useMiddlewareOn("*", attachWebSocket(async (input) => {
       const { conn, r: bufReader, w: bufWriter, headers } = input.meta;
       try {

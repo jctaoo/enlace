@@ -3,6 +3,8 @@ import { Injector } from "./injector.ts";
 import { EnlaceServer } from "./server.ts";
 import { Adaptor } from "./adaptor.ts";
 import { AdaptorConfigure } from "./adaptor.ts";
+import Log from "../util/log.ts";
+import { signal, onSignal } from "https://deno.land/std/signal/mod.ts";
 
 export class EnlaceEnvironment {
 
@@ -33,19 +35,11 @@ export class EnlaceEnvironment {
       this.isReady = true;
       this.watingEvent.forEach(t => t());
       this.watingEvent = [];
-      this.getInput();
+      Log.success("\nenlace is ready!!")
+      Log.ask();
     } else {
       // todo log here
     }
-  }
-
-  private async getInput() {
-    await Deno.stdout.write(new TextEncoder().encode('> '));
-    const buf = new Uint8Array(1024);
-    const n = <number>await Deno.stdin.read(buf);
-    const input = new TextDecoder().decode(buf.subarray(0, n));
-    eval(input);
-    this.getInput();
   }
 
 }

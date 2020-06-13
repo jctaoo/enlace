@@ -9,7 +9,13 @@ export function MainApplication(target: Constructor<Application>): void;
 export function MainApplication(arg: any): any {
   const fn = (target: Constructor<Application>, configure?: EnlaceApplicationConfigure) => {
     console.clear();
-    Log.info('starting enlace...');
+    Log.success('starting enlace...\n');
+    Log.info(
+      "\t" + "  ___  ____  / /___ _________ " + "\n" +
+      "\t" + " / _ \\/ __ \\/ / __ `/ ___/ _ \\" + "\n" +
+      "\t" + "/  __/ / / / / /_/ / /__/  __/" + "\n" +
+      "\t" + "\\___/_/ /_/_/\\__,_/\\___/\\___/ " + "\n"
+    );
     // todo check Application
     EnlaceEnvironment.shard.run(new target(configure));
   }
@@ -18,3 +24,8 @@ export function MainApplication(arg: any): any {
   }
   fn(arg);
 }
+
+
+
+
+

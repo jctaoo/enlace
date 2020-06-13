@@ -5,13 +5,21 @@ import {
   white,
   bgRed,
   bgGreen,
+  green,
+  bgYellow,
+  red,
 } from "https://deno.land/std/fmt/colors.ts";
 
 class Log {
   static info(message: string, tag: string = "") {
-    const coloredTag = white(bold(` ${tag} `));
+    const coloredTag = yellow(bold(`[${tag}]  `));
     const coloredMessage = white(message);
-    console.log((coloredTag ? `${coloredTag}  ` : "") + coloredMessage);
+    console.log((coloredTag ? `${tag === "" ? "" : coloredTag}` : "") + coloredMessage);
+  }
+
+  static success(message: string) {
+    const coloredMessage = green(bold(message));
+    console.log(coloredMessage);
   }
 
   static warning(message: string) {
@@ -20,8 +28,16 @@ class Log {
   }
 
   static error(message: string) {
-    const coloredMessage = bgRed(bold(white(message)));
+    const coloredMessage = red(bold(message));
     console.log(coloredMessage);
+  }
+
+  static async ask(question: string = ""): Promise<string> {
+    await Deno.stdout.write(new TextEncoder().encode(question));
+    const buf = new Uint8Array(1024);
+    const n = <number>await Deno.stdin.read(buf);
+    const input = new TextDecoder().decode(buf.subarray(0, n));
+    return input;
   }
 }
 

@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std/http/server.ts";
+import { serve } from "https://deno.land/std/http/mod.ts";
 import { Adaptor, AdaptorConfigure } from "../../core/adaptor.ts";
 import { EnlaceServer } from "../../core/server.ts";
 import { int } from "../../util/mod.ts";
@@ -27,21 +27,29 @@ export class HttpAdaptor extends Adaptor {
   }
 
   private async listenOnServer(host: string, port: int) {
-    const s = serve({ port: port, hostname: host });
-    Log.info(`listen on ${rgb24(bold(`http://${host}:${port}/`), 0xb7b1ff)}`, "Http");
-    for await (const request of s) {
-      const url = pathToUrl(request.proto, request.headers, request.url);
-      const input = new HttpEndpointInput(url.pathname, request);
-      const searchParameters: HttpSearchParameter = {};
-      url.searchParams.forEach((value, key) => {
-        searchParameters[key] = value;
-      });
-      input.queryParameters = searchParameters;
-      this.clientToInput.set(input.client, input);
-      this.didReceiveContent(input, input.client);
+    try {
+      const s = serve({ port: port, hostname: host });
+      Log.info(`listen on ${rgb24(bold(`http://${host}:${port}/`), 0xb7b1ff)}`, "Http");
+      for await (const request of s) {
+        const url = pathToUrl(request.proto, request.headers, request.url);
+        const input = new HttpEndpointInput(url.pathname, request);
+        const searchParameters: HttpSearchParameter = {};
+        url.searchParams.forEach((value, key) => {
+          searchParameters[key] = value;
+        });
+        input.queryParameters = searchParameters;
+        this.clientToInput.set(input.client, input);
+        this.didReceiveContent(input, input.client);
+      }
+    } catch (error) {
+      const message: string = error.message
+      if (message.startsWith("Address already in use")) {
+        Log.error(`Port ${this.port} is occupied, enlace will exit.`)
+        Deno.exit(100)
+      }
     }
   }
-  
+
   public sendToClient(client: Client, content: any) {
     const input = this.clientToInput.get(client);
     if (input && input instanceof HttpEndpointInput) {
