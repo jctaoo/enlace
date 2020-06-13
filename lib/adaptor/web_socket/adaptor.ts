@@ -9,17 +9,19 @@ import { attachWebSocket } from "./attach_middle_ware.ts";
 import { rgb24, bold } from "https://deno.land/std/fmt/colors.ts";
 import { pathToUrl } from "../../util/path-to-url.ts";
 import { Client } from "../../client.ts";
+import { injectable } from "../../decorators/injectable.ts";
 
+@injectable
 export class WebSocketAdaptor extends Adaptor {
 
   static readonly protocol: string = "WebSocket";
   public router: Router = new Router(this);
   private encoder: TextEncoder = new TextEncoder();
-  protected readonly httpAdaptor: HttpAdaptor;
 
-  constructor(httpAdaptor: HttpAdaptor) { 
+  constructor(
+    protected readonly httpAdaptor: HttpAdaptor
+  ) {
     super();
-    this.httpAdaptor = httpAdaptor;
   }
 
   public attachOnServer(server: EnlaceServer, configure: AdaptorConfigure) {

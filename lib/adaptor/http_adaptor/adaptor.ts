@@ -8,7 +8,9 @@ import { Router } from "../../core/router.ts";
 import { Log } from "../../util/mod.ts";
 import { rgb24, bold } from "https://deno.land/std/fmt/colors.ts";
 import { Client } from "../../client.ts";
+import { injectable } from "../../decorators/injectable.ts";
 
+@injectable
 export class HttpAdaptor extends Adaptor {
   readonly protocol: string = "Http";
 

@@ -1,6 +1,11 @@
 import { Constructor, InjectItem, InjectedItemProvider, isFactory, Factory } from '../injector_type.ts';
+import { Reflect } from "../../third_party/Reflect.ts";
 
 export const typeInfo: Map<Constructor<any>, Constructor<any>[]> = new Map();
+
+export function getParams(target: any) {
+  typeInfo.set(target, Reflect.getMetadata('design:paramtypes', target));
+}
 
 export class Injector {
 
