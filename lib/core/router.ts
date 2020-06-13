@@ -162,7 +162,6 @@ export class Router {
    * @param configure The configure of middleware to register.
    */
   protected addMiddleWareAndConfigure(middleware: MiddleWare, configure: MiddleWareConfigure) {
-    Log.info(`register ${rgb24(configure.expectedPath, 0xffc42e)}`, 'Router');
     this.middlewaresWithConfigure.push({ configure, middleWare: middleware });
   }
 
