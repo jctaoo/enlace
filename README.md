@@ -18,6 +18,7 @@
     <a href="https://github.com/2pown/enlace/blob/develop/LICENSE">
       <img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge" alt="Licence-MIT">
     </a> 
+    <a href="https://www.codacy.com/gh/2pown/enlace?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=2pown/enlace&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/dc9bab23c5634fccba88b43c583e7850"/></a>
 </p>
 
 # TODO:
