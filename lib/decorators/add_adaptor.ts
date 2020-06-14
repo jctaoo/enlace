@@ -19,6 +19,9 @@ export function AddAdaptor(adaptorConstructor: Constructor<Adaptor>, configure: 
   const adaptor = Injector.shard.resolve(adaptorConstructor);
   EnlaceEnvironment.shard.server.addAdaptorWithConfigure(adaptor, configure);
   return (target, propertyKey, descriptor) => {
+    // todo 考虑直接获取的api
+    // const type = Reflect.getMetadata('design:paramtypes', target, propertyKey)[0]
+    // console.log(Injector.shard.resolve(type));
     const defaultTarget = function() {
       Log.error("no target found.")
     }
