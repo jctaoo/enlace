@@ -1,38 +1,24 @@
-<div style="display:flex;flex-direction:column;align-items:center;">
+<p align="center">
   <img src="./docs/.vuepress/public/logo.png" width=200px height=200px/>
-  <div style="padding-top:50px;display:flex;flex-direction:column;align-items:center">
-    <p style="font-size:1.8rem">Enlace</p>
-    <p style="font-size:1.5rem">基于Deno和Typescript处理连接的服务端框架</p>
-  </div>
-  <div style="font-size:0.9rem;color:darkgray;">
-    Enlace正在开发中
-  </div>
-</div>
+   <h1 align="center">Enlace</h1>
+   <h2 align="center">基于Deno和Typescript处理连接的服务端框架</p>
+   <h5 align="center">⚠️Enlace正在开发中</h5>
+</p>
 
-<!-- [![Build Status](https://github.com/2pown/enlace/workflows/main/badge.svg)](https://github.com/denoland/deno/actions) -->
-
-<div style="display:flex;justify-content:center;margin-top:20px;">
-  <span style="margin-left:10px;margin-right:10px;">
+<p align="center">
     <a href="https://www.typescriptlang.org/">
       <img src="https://img.shields.io/badge/TypeScript-%F0%9F%92%AA-blue?style=for-the-badge&logo=Typescript" alt="Typescript">
     </a>
-  </span>
-  <span style="margin-left:10px;margin-right:10px;">
     <a href="https://gitter.im/yeah2pown/Enlace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
       <img src="https://img.shields.io/badge/Gitter-yeah2pown/Enlace-orange?style=for-the-badge&logo=gitter" alt="Gitter">
     </a> 
-  </span>
-  <span style="margin-left:10px;margin-right:10px;">
     <a href="https://deno.land/">
       <img src="https://img.shields.io/badge/platform-deno-black?style=for-the-badge&logo=deno" alt="Platform-Deno">
     </a> 
-  </span>
-  <span style="margin-left:10px;margin-right:10px;">
     <a href="https://github.com/2pown/enlace/blob/develop/LICENSE">
       <img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge" alt="Licence-MIT">
     </a> 
-  </span>
-</div>
+</p>
 
 # TODO:
 - [ ] 完成 CLI
