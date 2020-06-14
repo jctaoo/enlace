@@ -21,6 +21,9 @@
 </p>
 
 # TODO:
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/9f7e34dc9a9845148de3aea3d8becdb8)](https://app.codacy.com/gh/2pown/enlace?utm_source=github.com&utm_medium=referral&utm_content=2pown/enlace&utm_campaign=Badge_Grade_Settings)
+
 - [ ] 完成 CLI
 - [ ] 完善 Http 与 WebSocket 的装饰器
 - [ ] 完善函数式开发体验
