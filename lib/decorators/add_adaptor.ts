@@ -7,13 +7,14 @@ import ApplicationEvents from "../application_events.ts";
 import { Reflect } from "../../third_party/Reflect.ts";
 import { APPLICATION_EVENTS_MARK_KEY } from "./metadata_keys.ts";
 import { Log } from "../util/mod.ts";
+import { DEFAULT_ADAPTOR_CONFIG } from "../constant.ts";
 
 export type AddAdaptorApplicationEventMark = ApplicationEventsMark<Adaptor>;
 
 // todo do not use Constructor
 // todo default AdaptorConfigure
 // todo 与application configure的顺序
-export function AddAdaptor(adaptorConstructor: Constructor<Adaptor>, configure: AdaptorConfigure): MethodDecorator {
+export function AddAdaptor(adaptorConstructor: Constructor<Adaptor>, configure: AdaptorConfigure = DEFAULT_ADAPTOR_CONFIG): MethodDecorator {
   Injector.shard.register(adaptorConstructor);
   const adaptor = Injector.shard.resolve(adaptorConstructor);
   EnlaceEnvironment.shard.server.addAdaptorWithConfigure(adaptor, configure);
