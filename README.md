@@ -1,9 +1,9 @@
-<p align="center">
+<div align="center">
   <img src="./docs/.vuepress/public/logo.png" width=200px height=200px/>
    <h1 align="center">Enlace</h1>
-   <h2 align="center">基于Deno和Typescript处理连接的服务端框架</p>
+   <h2 align="center">基于Deno和Typescript处理连接的服务端框架</h2>
    <h5 align="center">⚠️Enlace正在开发中</h5>
-</p>
+</div>
 
 <p align="center">
     <a href="https://www.typescriptlang.org/">
@@ -49,9 +49,9 @@ class DemoApplication extends Application {
 ```
 run
 ```bash
-git ignore https://github.com/2pown/enlace
+git clone https://github.com/2pown/enlace
 cd enlace
-deno run --allow-net --allow-read ./demo/simple.ts
+deno run -c ./tsconfig.json --allow-net --allow-read ./demo/simple.ts
 ```
 
 # 结构(i.e. 组成部分)

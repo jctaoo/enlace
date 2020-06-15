@@ -8,6 +8,9 @@ import { generatePart, parsePartString } from "./generate_part.ts";
 import { printInfo } from "./print_info.ts";
 import { updateCLI } from "./update.ts";
 
+// todo 错误参数处理
+// todo 处理更新
+
 const cli = cac(HOST_PROJECT_NAME);
 cli.version("0.0.1", "-v, --version");
 cli.help(() => {});
