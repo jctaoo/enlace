@@ -189,10 +189,10 @@ Endpoint 是一个具体处理外来请求的对象，原则上每个 Endpoint �
 > 具体通信协议的 adaptor、 endpoint 的接口以及 EndpointInput 中的内容均由具体通信协议的实现者提供，详情参见定义和扩展通信协议指南
 
 ### Endpoint 的抽象
-由于 Enlace 的目标是处理通信而不是简单地处理 Http，因此合理地对处理请求对 Endpoint 对象进行抽象就显得至关重要，Enlace 需要赋予 Endpoint 处理各种通信的能力。
+由于 Enlace 的目标是处理通信而不是简单地处理 Http，因此合理地对处理请求的 Endpoint 对象进行抽象就显得至关重要，Enlace 需要赋予 Endpoint 处理各种通信的能力。
 
 以两个比较常见的网络协议为例子:
-1. **Htpt**: 这是一个 `半双工` 的网络协议，只需要处理外来请求，而不需要考虑主动地将信息传送到客户端，为此，Enlace 提供了 `NormalEndpoint`, `NormalEndpoint` 的定义如下:
+1. **Http**: 这是一个 `半双工` 的网络协议，只需要处理外来请求，而不需要考虑主动地将信息传送到客户端，为此，Enlace 提供了 `NormalEndpoint`, `NormalEndpoint` 的定义如下:
 ```typescript
 abstract class HttpEndpoint extends NormalEndpoint {
   abstract receive(input: HttpEndpointInput): any | Promise<any>;
