@@ -7,16 +7,16 @@
 
 <p align="center">
     <a href="https://www.typescriptlang.org/">
-      <img src="https://img.shields.io/badge/TypeScript-%F0%9F%92%AA-blue?style=for-the-badge&logo=Typescript" alt="Typescript">
+      <img src="https://img.shields.io/badge/TypeScript-%F0%9F%92%AA-blue" alt="Typescript">
     </a>
     <a href="https://gitter.im/yeah2pown/Enlace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
-      <img src="https://img.shields.io/badge/Gitter-yeah2pown/Enlace-orange?style=for-the-badge&logo=gitter" alt="Gitter">
+      <img src="https://img.shields.io/badge/Gitter-yeah2pown/Enlace-orange" alt="Gitter">
     </a> 
     <a href="https://deno.land/">
-      <img src="https://img.shields.io/badge/platform-deno-black?style=for-the-badge&logo=deno" alt="Platform-Deno">
+      <img src="https://img.shields.io/badge/platform-deno-black" alt="Platform-Deno">
     </a> 
     <a href="https://github.com/2pown/enlace/blob/develop/LICENSE">
-      <img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge" alt="Licence-MIT">
+      <img src="https://img.shields.io/badge/license-MIT-red" alt="Licence-MIT">
     </a> 
     <a href="https://www.codacy.com/gh/2pown/enlace?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=2pown/enlace&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/dc9bab23c5634fccba88b43c583e7850"/></a>
 </p>
