@@ -4,7 +4,7 @@ import {
   isFormFile,
   FormFile,
 } from "https://deno.land/std/mime/mod.ts";
-import { pathToUrl } from "../../lib/util/path-to-url.ts";
+import { path_to_url } from "../../lib/util/path_to_url.ts";
 const s = serve({ port: 8000 });
 
 const decoder = new TextDecoder("gb2312");
@@ -12,7 +12,7 @@ const encoder = new TextEncoder();
 
 for await (const req of s) {
   // 获取url
-  const url = pathToUrl(req.proto, req.headers, req.url);
+  const url = path_to_url(req.proto, req.headers, req.url);
   console.log(url.href);
   // url.searchParams.forEach((value, key) => {
   //   console.log(`key: ${key} <=====> value: ${value}`);

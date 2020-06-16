@@ -1,10 +1,9 @@
 import { ServerRequest } from "https://deno.land/std/http/server.ts";
-import { PathParameter } from "../../util/match-path.ts";
 import { MultipartReader, FormFile } from "https://deno.land/std/mime/mod.ts";
-import { pathToUrl } from "../../util/path-to-url.ts";
+import { path_to_url } from "../../util/path_to_url.ts";
 import HttpMethod from "./method.ts";
-import { Util } from "../../util/mod.ts";
-import { EndpointInput } from "../../endpoint_input.ts";
+import { PathParameter, Util } from "../../util/mod.ts";
+import { EndpointInput } from "../../core/endpoint/endpoint_input.ts";
 import { Client } from "../../client.ts";
 
 export type HttpInputMeta = ServerRequest;
@@ -39,7 +38,7 @@ export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody>
   }
 
   get url(): URL {
-    return pathToUrl(this.meta.proto, this.meta.headers, this.meta.url);
+    return path_to_url(this.meta.proto, this.meta.headers, this.meta.url);
   }
 
   get method(): HttpMethod | string {

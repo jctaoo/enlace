@@ -1,4 +1,4 @@
-export function isConstructor(fn: any): boolean {
+export function canBeConstructed(fn: any): boolean {
   try {
     new fn();
     return true;

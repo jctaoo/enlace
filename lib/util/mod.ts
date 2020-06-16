@@ -1,18 +1,16 @@
-import { isJson, isFunction, isConstructor } from './type_validation.ts'
-import { matchPath, parsePath, PathParameter } from "./match-path.ts";
-import { pathToUrl } from "./path-to-url.ts";
-import LogClass from './log.ts';
-import TF from './true_function.ts';
+import { isJson, isFunction, canBeConstructed } from './type_validation.ts'
+import { matchPath, parsePath } from "./match_path.ts";
+import { path_to_url } from "./path_to_url.ts";
 
 export const Util = {
   isJson,
   isFunction,
-  isConstructor,
+  canBeConstructed,
   matchPath,
   parsePath,
-  pathToUrl,
+  pathToUrl: path_to_url,
 };
 
-export type int = number;
-export const Log = LogClass;
-export const TrueFunction = TF;
+export * from "./types.ts";
+export * from "./observable_map.ts";
+export * from "./log.ts";

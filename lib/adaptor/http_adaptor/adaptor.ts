@@ -1,9 +1,12 @@
 import { serve } from "https://deno.land/std/http/mod.ts";
-import { Adaptor, AdaptorConfigure } from "../../core/adaptor.ts";
+import {
+  Adaptor,
+  AdaptorConfig
+} from "../../core/mod.ts";
 import { EnlaceServer } from "../../core/server.ts";
 import { int } from "../../util/mod.ts";
 import { HttpEndpointInput, HttpSearchParameter } from "./endpoint_input.ts";
-import { pathToUrl } from "../../util/path-to-url.ts";
+import { path_to_url } from "../../util/path_to_url.ts";
 import { Router } from "../../core/router.ts";
 import { Log } from "../../util/mod.ts";
 import { rgb24, bold } from "https://deno.land/std/fmt/colors.ts";
@@ -20,10 +23,10 @@ export class HttpAdaptor extends Adaptor {
   public router: Router = new Router(this);
   private encoder: TextEncoder = new TextEncoder();
 
-  attachOnServer(server: EnlaceServer, configure: AdaptorConfigure): void {
-    super.attachOnServer(server, configure);
-    this.host = configure.host;
-    this.port = configure.port;
+  attachOnServer(server: EnlaceServer, config: AdaptorConfig): void {
+    super.attachOnServer(server, config);
+    this.host = config.host;
+    this.port = config.port;
     this.server = server;
     this.listenOnServer(this.host, this.port).then();
   }
@@ -33,7 +36,7 @@ export class HttpAdaptor extends Adaptor {
       const s = serve({ port: port, hostname: host });
       Log.info(`listen on ${rgb24(bold(`http://${host}:${port}/`), 0xb7b1ff)}`, "Http");
       for await (const request of s) {
-        const url = pathToUrl(request.proto, request.headers, request.url);
+        const url = path_to_url(request.proto, request.headers, request.url);
         const input = new HttpEndpointInput(url.pathname, request);
         const searchParameters: HttpSearchParameter = {};
         url.searchParams.forEach((value, key) => {

@@ -1,5 +1,11 @@
-import { Constructor, InjectItem, InjectedItemProvider, isFactory, Factory } from '../injector_type.ts';
-import { Reflect } from "../../third_party/Reflect.ts";
+import {
+  InjectItem,
+  InjectedItemProvider,
+  isFactory,
+  Factory
+} from './injector_type.ts';
+import { Reflect } from "../../../third_party/Reflect.ts";
+import { Constructor } from "../../util/mod.ts";
 
 export const typeInfo: Map<Constructor<any>, Constructor<any>[]> = new Map();
 
@@ -48,17 +54,23 @@ export class Injector {
     return provider?.get();
   }
 
+  #stored: Map<Constructor<unknown>, unknown> = new Map();
   private construct<T>(constructor: Constructor<T>): T {
+    const stored = this.#stored.get(constructor as Constructor<T>);
+    if (stored) { return stored as T; }
+
     const paramsTypes = typeInfo.get(constructor);
     const params = !!paramsTypes ? paramsTypes.map((item, index) => {
       const provider = this.itemToProvider.get(item);
       if (provider) {
         return provider.get();
       } else {
-
+        // todo
       }
     }) : [];
-    return new constructor(...params);
+    const instance = new constructor(...params);
+    this.#stored.set(constructor, instance);
+    return instance
   }
 
 }

@@ -1,10 +1,10 @@
-import { EndpointConfigure } from "../core/mod.ts";
+import { EndpointConfig } from "../core/mod.ts";
 import { Reflect } from '../../third_party/Reflect.ts'
-import { ENDPOINT_CONFIGURE_KEY } from "./metadata_keys.ts";
+import { ENDPOINT_CONFIG_KEY } from "./metadata_keys.ts";
 
-function ControllerMapping(configure: EndpointConfigure): ClassDecorator {
+function ControllerMapping(config: EndpointConfig): ClassDecorator {
   return target => {
-    Reflect.defineMetadata(ENDPOINT_CONFIGURE_KEY, configure, target);
+    Reflect.defineMetadata(ENDPOINT_CONFIG_KEY, config, target);
   };
 }
 

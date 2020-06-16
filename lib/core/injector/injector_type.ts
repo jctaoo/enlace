@@ -1,6 +1,4 @@
-export type Constructor<T> = {
-  new(...args: any[]): T;
-};
+import { Constructor } from "../../util/mod.ts";
 
 export type InjectItem<T = any> = Constructor<T> | string | symbol;
 

@@ -1,16 +1,16 @@
-import { Application } from "./application.ts";
-import { Injector } from "./injector.ts";
+import { Injector } from "./injector/injector.ts";
 import { EnlaceServer } from "./server.ts";
-import { Adaptor } from "./adaptor.ts";
 import Log from "../util/log.ts";
 import { getEventsMarkInApplication } from "../decorators/main_application.ts";
 import ApplicationEvents from "../application_events.ts";
 import { AddAdaptorApplicationEventMark } from "../decorators/add_adaptor.ts";
 import { LOGO, PROJECT_NAME, WELCOME_WORDS } from "../constant.ts";
+import { Application } from "./application/application.ts";
+import { Adaptor } from "./adaptor/adaptor.ts";
 
-export class EnlaceEnvironment {
+export class Environment {
 
-  public static shard = new EnlaceEnvironment();
+  public static shard = new Environment();
   public server = new EnlaceServer();
   private app!: Application;
   private isReady: boolean = false;
@@ -52,7 +52,7 @@ export class EnlaceEnvironment {
   async run(app: Application): Promise<void> {
     this.initApp(app);
 
-    if (this.app.appConfig.scan) {
+    if (this.app.config.scan) {
       await this.scan();
     }
     this.app.configure(Injector.shard, this.server);
@@ -61,8 +61,8 @@ export class EnlaceEnvironment {
     for (const [key] of this.server.adaptorsToConfigure) {
       this.callAdaptorObserver(key);
     }
+    Log.success("\nenlace is ready!!\n");
     this.app.onStartUp();
-    Log.success("\nenlace is ready!!")
     Log.ask().then();
   }
 

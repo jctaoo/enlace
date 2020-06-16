@@ -1,5 +1,5 @@
 import * as Testing from "https://deno.land/std/testing/asserts.ts";
-import { matchPath, parsePath } from "../../lib/util/match-path.ts";
+import { matchPath, parsePath } from "../../lib/util/match_path.ts";
 
 Deno.test("测试path匹配", () => {
   Testing.assertEquals(matchPath("/room/id/233", "*"), true);

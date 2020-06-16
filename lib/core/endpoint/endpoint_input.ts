@@ -1,7 +1,7 @@
-import { Client } from "./client.ts";
-import { PathParameter } from "./util/match-path.ts";
+import { Client } from "../../client.ts";
+import { PathParameter } from "../../util/types.ts";
 
-export type UnknownEndpointInput = EndpointInput<unknown, unknown>;
+export type GenericEndpointInput = EndpointInput<unknown, unknown>;
 
 /**
  * The generic package of client's requested information.

@@ -1,11 +1,24 @@
-import { Adaptor, AdaptorConfigure } from "./adaptor.ts";
-import { EndpointConfigure, UnkonwnEndpoint, EndpointWithConfigure } from "./endpoint.ts";
+import {
+  Adaptor,
+  AdaptorConfig
+} from "./adaptor/mod.ts";
+import {
+  EndpointConfig,
+  GenericEndpoint,
+  EndpointWithConfigure
+} from "./endpoint/mod.ts";
 import { Util } from "../util/mod.ts";
-import { MiddleWareWithConfigure, MiddleWare, MiddleWareConfigure } from "./middleware.ts";
-import { UnknownEndpointInput } from "../endpoint_input.ts";
+import {
+  MiddleWareWithConfigure,
+  Middleware,
+  MiddlewareConfig
+} from "./middleware/mod.ts";
+import { GenericEndpointInput } from "./endpoint/endpoint_input.ts";
 import { Client } from "../client.ts";
 import { Router } from "./router.ts";
 import ObservableMap from "../util/observable_map.ts";
+import instantiate = WebAssembly.instantiate;
+import { HttpAdaptor } from "../adaptor/http_adaptor/adaptor.ts";
 
 export class EnlaceServer {
 
@@ -24,7 +37,7 @@ export class EnlaceServer {
   /**
    * A map table store the relationship between adaptors and thier own configure.
    */
-  public readonly adaptorsToConfigure: ObservableMap<Adaptor, AdaptorConfigure> = new ObservableMap();
+  public readonly adaptorsToConfigure: ObservableMap<Adaptor, AdaptorConfig> = new ObservableMap();
 
   /**
    * Router instance contained in the EnlaceServer.
@@ -44,7 +57,7 @@ export class EnlaceServer {
    * @param adaptor The adaptor to register.
    * @param configure The configure of the adaptor to register.
    */
-  public addAdaptorWithConfigure(adaptor: Adaptor, configure: AdaptorConfigure) {
+  public addAdaptorWithConfigure(adaptor: Adaptor, configure: AdaptorConfig) {
     if (this.#isStarted) {
       adaptor.attachOnServer(this, configure);
     }
@@ -84,7 +97,7 @@ export class EnlaceServer {
    * @param client Used to mark unique network requests. Provided by the given
    *               adaptor.
    */
-  protected async receiveContent(adaptor: Adaptor, input: UnknownEndpointInput, client: Client): Promise<void> {
+  protected async receiveContent(adaptor: Adaptor, input: GenericEndpointInput, client: Client): Promise<void> {
     const path = input.path;
     const middleWaresWithConfigure = this.getMiddlewaresWithPathAndAdaptor(path, adaptor);
     const endpointWithConfigure = this.getEndpointWithPathAndAdaptor(path, adaptor);
@@ -145,7 +158,7 @@ export class EnlaceServer {
    *              Will be passed into the given endpoint.
    * @returns The result of given endpoint's execution.
    */
-  protected async executeEndpointWithConfigure(endpointWithConfigure: EndpointWithConfigure, path: string, input: UnknownEndpointInput): Promise<any> {
+  protected async executeEndpointWithConfigure(endpointWithConfigure: EndpointWithConfigure, path: string, input: GenericEndpointInput): Promise<any> {
     const pathParameters = Util.parsePath(path, endpointWithConfigure.configure.expectedPath);
     input.pathParameters = pathParameters;
     let result = endpointWithConfigure.endpoint.receive(input);
@@ -158,15 +171,15 @@ export class EnlaceServer {
   /**
    * Use recursion to execute all the given middleware in turn.
    * 
-   * @param middlewares The list value indicates all the middlewares to execute.
+   * @param middleware The list value indicates all the middleware to execute.
    * @param input The package of the message from the client in the network request. Will be 
-   *              passed into each given middlewares.
+   *              passed into each given middleware.
    */
-  protected executeMiddleWaresWithInput(middlewares: MiddleWare[], input: UnknownEndpointInput) {
-    if (middlewares.length > 0) {
-      const first = middlewares[0];
+  protected executeMiddleWaresWithInput(middleware: Middleware[], input: GenericEndpointInput) {
+    if (middleware.length > 0) {
+      const first = middleware[0];
       first(input, () => {
-        this.executeMiddleWaresWithInput(middlewares.splice(1), input);
+        this.executeMiddleWaresWithInput(middleware.splice(1), input);
       });
     }
   }

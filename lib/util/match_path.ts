@@ -1,6 +1,6 @@
-export type PathParameter = { [key: string]: string };
+import { PathParameter } from "./types.ts";
 
-export const matchPath = (path: string, expectedPath: string): boolean => {
+export function matchPath(path: string, expectedPath: string): boolean {
   expectedPath = expectedPath.replace(/\*/g, ".*");
   const regxToValidate = RegExp(expectedPath.replace(/:\([^\)].+?\)/g, ".*"));
   const result = regxToValidate.exec(path);
@@ -11,10 +11,10 @@ export const matchPath = (path: string, expectedPath: string): boolean => {
   }
 };
 
-export const parsePath = (
+export function parsePath(
   path: string,
   expectedPath: string,
-): PathParameter => {
+): PathParameter {
   expectedPath = expectedPath.replace(/\*/g, ".*");
   const parameters: PathParameter = {};
   const regxToExtractParameters = RegExp(

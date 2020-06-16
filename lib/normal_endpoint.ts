@@ -1,5 +1,5 @@
-import { UnknownEndpointInput } from "./endpoint_input.ts";
-import { ClassEndpoint } from "./core/endpoint.ts";
+import { GenericEndpointInput } from "./core/endpoint/endpoint_input.ts";
+import { ClassEndpoint } from "./core/mod.ts";
 
 /**
  * Used to support network protocols that need to be returned 
@@ -10,6 +10,6 @@ export abstract class NormalEndpoint extends ClassEndpoint {
   /**
    * @see Endpoint.recieve
    */
-  abstract receive(input: UnknownEndpointInput): any | Promise<any>;
+  abstract receive(input: GenericEndpointInput): any | Promise<any>;
 
 }

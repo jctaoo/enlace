@@ -4,9 +4,9 @@ import {
   WebSocketEvent,
   isWebSocketPongEvent,
 } from "https://deno.land/std/ws/mod.ts";
-import { PathParameter } from "../../util/match-path.ts";
+import { PathParameter } from "../../util/types.ts";
 import { Util } from "../../util/mod.ts";
-import { EndpointInput } from "../../endpoint_input.ts";
+import { EndpointInput } from "../../core/endpoint/endpoint_input.ts";
 import { Client } from "../../client.ts";
 
 type WebSocketMeta = WebSocket;

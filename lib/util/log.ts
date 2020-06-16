@@ -1,12 +1,8 @@
 import {
   bold,
-  black,
   yellow,
   white,
-  bgRed,
-  bgGreen,
   green,
-  bgYellow,
   red,
 } from "https://deno.land/std/fmt/colors.ts";
 

@@ -1,5 +1,5 @@
-import { ClassEndpoint } from "./core/endpoint.ts";
-import { UnknownEndpointInput } from "./endpoint_input.ts";
+import { ClassEndpoint } from "./core/mod.ts";
+import { GenericEndpointInput } from "./core/endpoint/endpoint_input.ts";
 import { Client } from "./client.ts";
 
 export abstract class KeepAliveEndpoint extends ClassEndpoint {
@@ -12,7 +12,7 @@ export abstract class KeepAliveEndpoint extends ClassEndpoint {
   /**
    * @see Endpoint.recieve
    */
-  abstract receive(input: UnknownEndpointInput): void;
+  abstract receive(input: GenericEndpointInput): void;
 
   // todo lifecycle callback
   // requesterDidOffline(): void {};

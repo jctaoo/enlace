@@ -1,4 +1,4 @@
-import { Adaptor, AdaptorConfigure } from "../../core/adaptor.ts";
+import { Adaptor, AdaptorConfig } from "../../core/mod.ts";
 import { WebSocketEndpointInput } from "./endpoint_input.ts";
 import { Router } from "../../core/router.ts";
 import { EnlaceServer } from "../../core/server.ts";
@@ -7,7 +7,7 @@ import { acceptWebSocket } from "https://deno.land/std/ws/mod.ts";
 import { HttpAdaptor } from "../http_adaptor/adaptor.ts";
 import { attachWebSocket } from "./attach_middle_ware.ts";
 import { rgb24, bold } from "https://deno.land/std/fmt/colors.ts";
-import { pathToUrl } from "../../util/path-to-url.ts";
+import { path_to_url } from "../../util/path_to_url.ts";
 import { Client } from "../../client.ts";
 import { injectable } from "../../decorators/injectable.ts";
 
@@ -24,7 +24,7 @@ export class WebSocketAdaptor extends Adaptor {
     super();
   }
 
-  public attachOnServer(server: EnlaceServer, configure: AdaptorConfigure) {
+  public attachOnServer(server: EnlaceServer, configure: AdaptorConfig) {
     super.attachOnServer(server, configure);
     Log.info(`listen on ${rgb24(bold(`ws://${configure.host}:${configure.port}/`), 0xb7b1ff)}`, "WebSocket");
     this.httpAdaptor.router.useMiddlewareOn("*", attachWebSocket(async (input) => {
@@ -35,7 +35,7 @@ export class WebSocketAdaptor extends Adaptor {
         });
         try {
           for await (const event of sock) {
-            const url = pathToUrl(input.meta.proto, input.meta.headers, input.meta.url);
+            const url = path_to_url(input.meta.proto, input.meta.headers, input.meta.url);
             const inputContent = new WebSocketEndpointInput(url.pathname, sock, event);
             this.clientToInput.set(inputContent.client, inputContent);
             this.didReceiveContent(inputContent, inputContent.client);
