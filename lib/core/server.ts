@@ -7,7 +7,7 @@ import {
   GenericEndpoint,
   EndpointWithConfigure
 } from "./endpoint/mod.ts";
-import { Util } from "../util/mod.ts";
+import { Constructor, Util } from "../util/mod.ts";
 import {
   MiddleWareWithConfigure,
   Middleware,
@@ -19,6 +19,7 @@ import { Router } from "./router.ts";
 import ObservableMap from "../util/observable_map.ts";
 import instantiate = WebAssembly.instantiate;
 import { HttpAdaptor } from "../adaptor/http_adaptor/adaptor.ts";
+import { Injector } from "./injector/injector.ts";
 
 export class EnlaceServer {
 
@@ -57,34 +58,20 @@ export class EnlaceServer {
    * @param adaptor The adaptor to register.
    * @param configure The configure of the adaptor to register.
    */
-  public addAdaptorWithConfigure(adaptor: Adaptor, configure: AdaptorConfig) {
+  public addAdaptorWithConfigure(adaptor: Constructor<Adaptor>, configure: AdaptorConfig): Adaptor {
+    // register adaptor on injector
+    Injector.shard.register(adaptor);
+    const instance = Injector.shard.resolve(adaptor);
+    // add adaptor on server
     if (this.#isStarted) {
-      adaptor.attachOnServer(this, configure);
+      instance.attachOnServer(this, configure);
     }
-    adaptor.didReceiveContent = (content, client) => {
-      this.receiveContent(adaptor, content, client).then();
+    instance.didReceiveContent = (content, client) => {
+      this.receiveContent(instance, content, client).then();
     };
-    this.adaptorsToConfigure.set(adaptor, configure);
-  }
-  
-  /**
-   * Find the instance of adapor whitch is registered by type of adaptor. 
-   * 
-   * // todo dont use any !!! 
-   * @param type The type of adaptor to find.
-   */
-  public getAdaptor(type: any): Adaptor | null {
-    try {
-      for (const adaptor of this.adaptors) {
-        if (adaptor instanceof type) {
-          return adaptor;
-        }
-      }
-      return null;
-    } catch {
-      // todo throw custom error
-      return null;
-    }
+    this.adaptorsToConfigure.set(instance, configure);
+
+    return instance
   }
 
   /**

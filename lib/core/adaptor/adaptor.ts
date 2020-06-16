@@ -8,14 +8,11 @@ export abstract class Adaptor {
   /**
    * This value is empty when the Adaptor is not added to EnlaceServer.
    */
-  public server!: EnlaceServer;
-  /**
-   * This value is empty when the Adaptor is not added to EnlaceServer.
-   */
   protected config!: AdaptorConfig;
 
   public get isAssociatedWithServer(): boolean {
-    return this.server != undefined && this.config != undefined;
+    // todo
+    return true;
   }
 
   /**
@@ -46,7 +43,6 @@ export abstract class Adaptor {
    * @param config
    */
   attachOnServer(server: EnlaceServer, config: AdaptorConfig): void {
-    this.server = server;
     this.config = config;
   }
 

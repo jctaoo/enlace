@@ -11,6 +11,7 @@ import { Reflect } from "../../third_party/Reflect.ts";
 import { APPLICATION_EVENTS_MARK_KEY } from "./metadata_keys.ts";
 import { Constructor, Log } from "../util/mod.ts";
 import { DEFAULT_ADAPTOR_CONFIG } from "../constant.ts";
+import { useServer } from "./use_server.ts";
 
 // todo do not use Constructor
 // todo default AdaptorConfigure
@@ -19,9 +20,7 @@ import { DEFAULT_ADAPTOR_CONFIG } from "../constant.ts";
 export type AddAdaptorApplicationEventMark = ApplicationEventsMark<Adaptor>;
 
 export function AddAdaptor(adaptorConstructor: Constructor<Adaptor>, configure: AdaptorConfig = DEFAULT_ADAPTOR_CONFIG): MethodDecorator {
-  Injector.shard.register(adaptorConstructor);
-  const adaptor = Injector.shard.resolve(adaptorConstructor);
-  Environment.shard.server.addAdaptorWithConfigure(adaptor, configure);
+  const adaptor = useServer().addAdaptorWithConfigure(adaptorConstructor, configure);
   return (target, propertyKey, descriptor) => {
     // todo 考虑直接获取的api
     // const type = Reflect.getMetadata('design:paramtypes', target, propertyKey)[0]

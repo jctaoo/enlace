@@ -6,9 +6,6 @@ import { GenericEndpointInput } from "./endpoint_input.ts";
  * the form of the endpoint is a function or a class.
  */
 export interface Endpoint {
-
-  server: EnlaceServer | null;
-
   /**
    * A callback function called by EnlaceServer when the request from the client matches
    * the configuration of this endpoint.
@@ -19,6 +16,5 @@ export interface Endpoint {
 }
 
 export function isEndpoint(obj: any): boolean {
-  return typeof obj === "object" &&
-    "server" in obj;
+  return typeof obj === "object";
 }

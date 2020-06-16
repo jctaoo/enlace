@@ -19,7 +19,6 @@ export class HttpAdaptor extends Adaptor {
 
   protected port!: int;
   protected host!: string;
-  public server!: EnlaceServer;
   public router: Router = new Router(this);
   private encoder: TextEncoder = new TextEncoder();
 
@@ -27,7 +26,6 @@ export class HttpAdaptor extends Adaptor {
     super.attachOnServer(server, config);
     this.host = config.host;
     this.port = config.port;
-    this.server = server;
     this.listenOnServer(this.host, this.port).then();
   }
 

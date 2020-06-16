@@ -1,5 +1,5 @@
 import {
-  Application
+  Application, Router
 } from "../lib/core/mod.ts";
 import { blue } from "https://deno.land/std/fmt/colors.ts";
 import {
@@ -11,6 +11,8 @@ import {
   AddAdaptor,
   MainApplication
 } from "../lib/decorators/mod.ts";
+import { useServer } from "../lib/decorators/use_server.ts";
+import { useApplication } from "../lib/decorators/use_application.ts";
 
 function Home() {
   return "<h1>Welcome</h1>"
@@ -33,16 +35,16 @@ class FunctionStyleApplication extends Application {
   }
 
   @AddAdaptor(HttpAdaptor)
-  onAddHttpAdaptor(httpAdaptor: HttpAdaptor) {
-    httpAdaptor.router
+  onAddHttpAdaptor(router: Router) {
+    router
       .useEndpointOn("/", Home)
   }
 
   @AddAdaptor(WebSocketAdaptor)
-  onAddWsAdaptor(wsAdaptor: WebSocketAdaptor) {
-    wsAdaptor.router
+  onAddWsAdaptor(router: Router) {
+    router
       .useEndpointOn("/global", GlobalRoom)
-      .useEndpointOn("/room/:(id)", Room);
+      .useEndpointOn("/room/:(room)", Room);
   }
 
 }

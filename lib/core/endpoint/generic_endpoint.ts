@@ -15,11 +15,6 @@ let __useArrowFunction: boolean;
 export abstract class ClassEndpoint implements Endpoint {
 
   /**
-   * @see Endpoint.server
-   */
-  server!: EnlaceServer;
-
-  /**
    * @see Endpoint.receive
    */
   abstract receive(input: GenericEndpointInput): any | Promise<any>;
@@ -73,5 +68,5 @@ export function toEndpoint(endpoint: GenericEndpoint): Endpoint {
       );
     }
   }
-  return { receive: endpoint as FunctionEndpoint, server: null };
+  return { receive: endpoint as FunctionEndpoint };
 }

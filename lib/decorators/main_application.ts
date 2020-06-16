@@ -8,11 +8,15 @@ import ApplicationEventsMark from "./application_events_mark.ts";
 import { Reflect } from "../../third_party/Reflect.ts";
 import { APPLICATION_EVENTS_MARK_KEY } from "./metadata_keys.ts";
 import { Constructor, Util } from "../util/mod.ts";
+import { injectable } from "./injectable.ts";
 
 export function MainApplication(config: ApplicationConfig): ClassDecorator;
 export function MainApplication(target: Function): void;
 export function MainApplication(arg: any): any {
   const fn = (target: Constructor<Application>, config?: ApplicationConfig) => {
+    // combine injectable
+    // todo better way
+    injectable(target);
     // todo check Application
     Environment.shard.run(new target(config)).then();
   }

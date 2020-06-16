@@ -153,12 +153,6 @@ export class Router {
   protected addEndpointWithConfigure(endpoint: Endpoint, config: EndpointConfig) {
     Log.info(`register ${rgb24(config.expectedPath, 0xffc42e)} on endpoint`, 'Router');
     this.configureToEndpoint.set(config, endpoint);
-    // set server on endpoint
-    if (this.holder instanceof EnlaceServer) {
-      endpoint.server = this.holder;
-    } else {
-      endpoint.server = this.holder.server;
-    }
   }
 
   /**

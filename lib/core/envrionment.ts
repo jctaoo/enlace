@@ -10,36 +10,28 @@ import { Adaptor } from "./adaptor/adaptor.ts";
 
 export class Environment {
 
+  // todo better way
+  public ApplicationKey = Symbol("ApplicationKey");
+
   public static shard = new Environment();
-  public server = new EnlaceServer();
+  public server: EnlaceServer = this.registerServer();
   private app!: Application;
   private isReady: boolean = false;
-
   private adaptorToObserver: Map<Adaptor, Function> = new Map();
-
-  private constructor() {
-    this.server.adaptorsToConfigure.observeChange(updated => {
-      if (this.isReady) {
-        this.callAdaptorObserver(updated.key)
-      }
-    })
-  }
 
   private initApp(app: Application) {
     if (!this.app) {
-      console.clear();
+      Log.clear();
       Log.success(WELCOME_WORDS, PROJECT_NAME);
       Log.info(LOGO);
-      this.app = app;
-      // init adaptorToObserver
-      const eventsMark = getEventsMarkInApplication(app);
-      for (const mark of eventsMark) {
-        if (mark.type === ApplicationEvents.onAddAdaptor) {
-          const adaptorMark = mark as AddAdaptorApplicationEventMark;
-          // todo 检查adaptor是否在server里
-          this.adaptorToObserver.set(adaptorMark.meta, adaptorMark.target);
+      this.app = this.registerApplication(app);
+      this.setEventsInAdaptor()
+      // observe adaptors in server
+      this.server.adaptorsToConfigure.observeChange(updated => {
+        if (this.isReady) {
+          this.callAdaptorObserver(updated.key)
         }
-      }
+      })
     } else {
       // todo log here
     }
@@ -69,7 +61,28 @@ export class Environment {
   private callAdaptorObserver(adaptor: Adaptor) {
     const observer = this.adaptorToObserver.get(adaptor);
     if (observer) {
-      observer(adaptor);
+      observer(adaptor.router);
+    }
+  }
+
+  private registerServer(): EnlaceServer {
+    Injector.shard.register(EnlaceServer);
+    return Injector.shard.resolve(EnlaceServer);
+  }
+
+  private registerApplication(app: Application): Application {
+    Injector.shard.register(this.ApplicationKey, app);
+    return Injector.shard.resolve(this.ApplicationKey);
+  }
+
+  private setEventsInAdaptor() {
+    const eventsMark = getEventsMarkInApplication(this.app);
+    for (const mark of eventsMark) {
+      if (mark.type === ApplicationEvents.onAddAdaptor) {
+        const adaptorMark = mark as AddAdaptorApplicationEventMark;
+        // todo 检查adaptor是否在server里
+        this.adaptorToObserver.set(adaptorMark.meta, adaptorMark.target);
+      }
     }
   }
 

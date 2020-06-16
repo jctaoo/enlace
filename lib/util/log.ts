@@ -7,6 +7,10 @@ import {
 } from "https://deno.land/std/fmt/colors.ts";
 
 class Log {
+  static clear() {
+    console.clear();
+  }
+
   static info(message: string, tag: string = "") {
     const coloredTag = yellow(bold(`[${tag}]  `));
     const coloredMessage = white(message);
@@ -28,7 +32,7 @@ class Log {
   static error(message: string, tag: string = "") {
     const coloredTag = yellow(bold(`[${tag}]  `));
     const coloredMessage = red(bold(message));
-    console.log((coloredTag ? `${tag === "" ? "" : coloredTag}` : "") + coloredMessage);
+    console.error((coloredTag ? `${tag === "" ? "" : coloredTag}` : "") + coloredMessage);
   }
 
   static async ask(question: string = ""): Promise<string> {

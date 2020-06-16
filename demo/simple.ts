@@ -1,5 +1,5 @@
 import { HttpAdaptor } from "../lib/adaptor/mod.ts";
-import { Application } from "../lib/core/mod.ts";
+import { Application, Router } from "../lib/core/mod.ts";
 import {
   MainApplication,
   AddAdaptor
@@ -9,8 +9,8 @@ import {
 class DemoApplication extends Application {
 
   @AddAdaptor(HttpAdaptor)
-  onAddHttpAdaptor(adaptor: HttpAdaptor) {
-    adaptor.router.useEndpointOn('/', () => 'HelloWorld');
+  onAddHttpAdaptor(router: Router) {
+    router.useEndpointOn('/', () => 'HelloWorld');
   }
 
 }
