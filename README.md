@@ -41,8 +41,8 @@ simple.ts
 class DemoApplication extends Application {
 
   @AddAdaptor(HttpAdaptor)
-  onAddHttpAdaptor(adaptor: HttpAdaptor) {
-    adaptor.router.useEndpointOn('/', () => 'HelloWorld');
+  onAddHttpAdaptor(router: Router) {
+    router.useEndpointOn('/', () => 'HelloWorld');
   }
 
 }
@@ -54,9 +54,7 @@ cd enlace
 deno run -c ./tsconfig.json --allow-net --allow-read ./demo/simple.ts
 ```
 
-# 结构(i.e. 组成部分)
-流程图: https://www.processon.com/view/link/5edfa5f307912929cb362e85
-
+# 组成部分
 - [EnlaceEnvrionment](#EnlaceEnvrionment): Enlace app 的运行环境，无需用户的配置和参与
 - [Application](#Application): 承载了 Server 对象和依赖注入的 Injector 对象，是 enlace app 的核心
 - [Server](#Server): 对请求进行处理的, 分配给某个 Adaptor 或者 Server 上的 Router 对象
@@ -64,8 +62,10 @@ deno run -c ./tsconfig.json --allow-net --allow-read ./demo/simple.ts
 - [Adaptor](#Adaptor): 用于支持具体通信协议的适配器，Enlace 内置了 Http 与 WebSocket 的适配器
 - [Middleware](#Middleware): 对请求进行过滤与加工，与 Endpoint 之前运行
 - [Endpoint](#Endpoint): 外部请求进入 Enlace app 后的处理点
+- Client: 用于唯一地标记每一次请求，由 Enlace 和 Adaptor 维护。
+- EndpointInput: 统一的 Endpoint 输入。
 
-# EnlaceEnvrionment:
+# Envrionment
 EnlaceEnvrionment 包含一个 Application，并根据 Application 里的配置来运行 Enlace app，以及自动地调用 Applicaiton 里定义的回调函数。(详见 [Application](#Application))
 
 # Application:
@@ -108,8 +108,8 @@ configure(injector: Injector, server: EnlaceServer) {
 示例代码(省略了 DemoApplication 类的定义):
 ```typescript
 @AddAdaptor(HttpAdaptor)
-onAddHttpAdaptor(adaptor: HttpAdaptor) {
-  adaptor.router.useEndpointOn('/', () => 'HelloWorld');
+onAddHttpAdaptor(router: Router) {
+  router.useEndpointOn('/', () => 'HelloWorld');
 }
 ```
 
@@ -121,7 +121,9 @@ Server 记录了所有已经注册的 Adaptor 以及它们的配置信息。
 > Server 会优先将请求与自己的 Router 对象相匹配，如果有匹配成功的，将不会调用在 adaptor 的 router 上注册的 Middleware 和 Endpoint
 
 # Router
-Router 记录了所有已经注册的 Endpoint 与 Middleware 以及它们各自的配置信息。
+Router 记录了所有已经注册的 Endpoint 与 Middleware 以及它们各自的配置信息。Server 持有一个 Router 对象，每个 Adaptor 持有一个 Router 对象。
+
+> 在 server 上的 router 注册的 Endpoint 没有明确划分使用哪个 Adaptor，因此您可以通过设置 EndpointConfig 中的 selectAdaptor 来动态确定需要该 Endpoint 接收来自哪个 adaptor 的数据。
 
 当接收到来自 Server 的请求后，Router 会找出该请求符合要求的 Middleware 和 Endpoint，其中 Middleware 可以有多个，但 Endpoint 只有一个，然后对 Middleware 进行调用，接下来是 Endpoint。
 
@@ -134,7 +136,7 @@ Adaptor 并不需要用户编写，而是由具体协议的实现者与 Enlace �
 ```typescript
 export abstract class Adaptor {
   // 每个 adaptor 需要手动维护每个连接与连接是的输入的关系，当某个连接不再有效时需要删除
-  clientToInput: Map<Client, UnknownEndpointInput> = new Map();
+  clientToInput: Map<Client, GenericEndpointInput> = new Map();
 
   // 定义该通信协议的初始化工作，比如对于 Http 来说就是监听端口
   attachOnServer(server: EnlaceServer, configure: AdaptorConfigure): void;
@@ -143,7 +145,7 @@ export abstract class Adaptor {
   abstract sendToClient(client: Client, content: unknown): void;
 
   // 该字段的值由 Server 提供，只需要在收到请求后调用该函数，Server 就可以收到
-  didReceiveContent: (input: UnknownEndpointInput, client: Client) => void = () => { };
+  didReceiveContent: (input: GenericEndpointInput, client: Client) => void = () => { };
 }
 ```
 ### Adaptor 的使用
@@ -155,7 +157,7 @@ configure(injector: Injector, server: EnlaceServer) {
 }
 // 或者
 @AddAdaptor(HttpAdaptor, { host: 'localhost', port: 20203 })
-onAddHttpAdaptor(adaptor: HttpAdaptor) {
+onAddHttpAdaptor(router: Router) {
   // ......
 }
 ```
@@ -168,7 +170,7 @@ onAddHttpAdaptor(adaptor: HttpAdaptor) {
 
 Middleware 的原型如下(被定义成只能用作函数形式是因为我们希望每个 Mddleware 足够简单，毕竟处理请求的主角是 Endpoint):
 ```typescript
-type MiddleWare = (input: UnknownEndpointInput, next: Function) => void | Promise<void>;
+type MiddleWare = (input: GenericEndpointInput, next: Function) => void | Promise<void>;
 ```
 ### Middleware 的使用
 于 Endpoint 的使用基本相同，示例如下: 
@@ -202,7 +204,7 @@ abstract class HttpEndpoint extends NormalEndpoint {
 ```typescript
 export abstract class KeepAliveEndpoint extends ClassEndpoint {
   clients: Client[];
-  abstract receive(input: UnknownEndpointInput): void;
+  abstract receive(input: GenericEndpointInput): void;
   broadcast(message: unknown, clients: Client[]): void
   sendMessageToClient(message: unknown, client: Client): void
 }
