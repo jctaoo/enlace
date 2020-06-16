@@ -3,7 +3,7 @@ import {
   toEndpoint,
   combineEndpointConfigure,
 } from "./core/mod.ts";
-import { Util } from "./util/mod.ts";
+import { Constructor, Util } from "./util/mod.ts";
 import { Reflect } from "../third_party/Reflect.ts";
 import { ENDPOINT_CONFIG_KEY } from "./decorators/metadata_keys.ts";
 
@@ -12,11 +12,12 @@ import { ENDPOINT_CONFIG_KEY } from "./decorators/metadata_keys.ts";
 //
 // }
 
-function isController(controller: Object): boolean {
-  return !!Reflect.getMetadata(ENDPOINT_CONFIG_KEY, controller.constructor);
+export function isController(controller: Object | Constructor<Object>): boolean {
+  return !!Reflect.getMetadata(ENDPOINT_CONFIG_KEY, controller) ||
+    !!Reflect.getMetadata(ENDPOINT_CONFIG_KEY, controller.constructor);
 }
 
-function getEndpointsInController(controller: Object): EndpointWithConfigure[] {
+export function getEndpointsInController(controller: Object): EndpointWithConfigure[] {
   const rootConfigure = Reflect.getMetadata(ENDPOINT_CONFIG_KEY, controller.constructor);
   
   const prototype = Object.getPrototypeOf(controller);
@@ -32,5 +33,3 @@ function getEndpointsInController(controller: Object): EndpointWithConfigure[] {
     };
   });
 }
-
-export { isController, getEndpointsInController };
