@@ -20,4 +20,4 @@ jobs:
         deno-version: ${{ matrix.deno }}
     - name: run test
       run:
-        deno test
+        deno test -c ./tsconfig.json
