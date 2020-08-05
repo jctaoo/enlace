@@ -110,7 +110,7 @@ export class HttpEndpointInput implements EndpointInput<HttpInputMeta, HttpBody>
     return null;
   }
 
-  async fileFromForm(key: string): Promise<FormFile | null> {
+  async fileFromForm(key: string): Promise<FormFile | FormFile[] | null> {
     this.checkBoundary();
     if (this.$formBoundary) {
       const reader = new MultipartReader(this.meta.body, this.$formBoundary);
