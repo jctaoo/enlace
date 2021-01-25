@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std/http/mod.ts";
+import { serve, ServerRequest } from "https://deno.land/std/http/mod.ts";
 import {
   Adaptor,
   AdaptorConfig
@@ -29,20 +29,24 @@ export class HttpAdaptor extends Adaptor {
     this.listenOnServer(this.host, this.port).then();
   }
 
+  private async handleRequest(request: ServerRequest) {
+    const url = path_to_url(request.proto, request.headers, request.url);
+    const input = new HttpEndpointInput(url.pathname, request);
+    const searchParameters: HttpSearchParameter = {};
+    url.searchParams.forEach((value, key) => {
+      searchParameters[key] = value;
+    });
+    input.queryParameters = searchParameters;
+    this.clientToInput.set(input.client, input);
+    this.didReceiveContent(input, input.client);
+  }
+
   private async listenOnServer(host: string, port: int) {
     try {
       const s = serve({ port: port, hostname: host });
       Log.info(`listen on ${rgb24(bold(`http://${host}:${port}/`), 0xb7b1ff)}`, "Http");
       for await (const request of s) {
-        const url = path_to_url(request.proto, request.headers, request.url);
-        const input = new HttpEndpointInput(url.pathname, request);
-        const searchParameters: HttpSearchParameter = {};
-        url.searchParams.forEach((value, key) => {
-          searchParameters[key] = value;
-        });
-        input.queryParameters = searchParameters;
-        this.clientToInput.set(input.client, input);
-        this.didReceiveContent(input, input.client);
+        this.handleRequest(request);
       }
     } catch (error) {
       const message: string = error.message
